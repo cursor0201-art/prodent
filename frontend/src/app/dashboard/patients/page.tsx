@@ -54,7 +54,7 @@ interface Patient {
   files?: PatientFile[];
 }
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://prodent-htae.onrender.com';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
 export default function PatientsPage() {
   const [patients, setPatients] = useState<Patient[]>([]);
