@@ -46,7 +46,7 @@ const StatCard = ({ title, value, change, icon: Icon, color }: StatCardProps) =>
   </motion.div>
 );
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://prodent-hfae.onrender.com';
 
 export default function DashboardPage() {
   const [user, setUser] = useState<any>(null);

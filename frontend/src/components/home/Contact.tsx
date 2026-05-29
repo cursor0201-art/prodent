@@ -22,7 +22,7 @@ interface Service {
   price: string;
 }
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://prodent-hfae.onrender.com';
 
 export const Contact = () => {
   const { t, language } = useLanguage();
