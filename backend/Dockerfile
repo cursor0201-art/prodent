@@ -23,5 +23,5 @@ RUN python manage.py collectstatic --noinput
 
 EXPOSE 8000
 
-# Запуск Gunicorn (передаем воркеры для оптимизации)
-CMD ["gunicorn", "core.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "3"]
+# Запуск миграций и Gunicorn
+CMD ["sh", "-c", "python manage.py migrate && gunicorn core.wsgi:application --bind 0.0.0.0:8000 --workers 3"]
