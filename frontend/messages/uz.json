@@ -1,0 +1,98 @@
+{
+  "nav": {
+    "about": "Klinika haqida",
+    "services": "Xizmatlar",
+    "doctors": "Shifokorlar",
+    "prices": "Narxlar",
+    "reviews": "Fikrlar",
+    "contacts": "Aloqa",
+    "faq": "Savollar",
+    "crm": "CRM Panel",
+    "book": "Onlayn yozilish"
+  },
+  "hero": {
+    "title": "Toshkentda Yuqori Darajadagi Stomatologiya",
+    "subtitle": "Sizning go'zal tabassumingiz — bizning maqsadimiz. Yevropa uskunalarida professional davolash, implantatsiya va vinirlar.",
+    "cta": "Qabulga yozilish",
+    "secondary": "Biz bilan bog'lanish",
+    "stat_years": "Yillik tajriba",
+    "stat_patients": "Baxtli mijozlar",
+    "stat_doctors": "Shifokorlarimiz"
+  },
+  "about": {
+    "title": "Klinikamiz haqida",
+    "text1": "Prodent Stomatologiya — tishlarni davolash, protezlash va implantatsiya qilish bo'yicha to'liq xizmatlarni taklif qiluvchi zamonaviy stomatologiya markazidir. Biz sizga premium darajadagi tibbiy xizmatlarni taqdim etish uchun ilg'or texnologiyalar va yuqori malakali mutaxassislar jamoasini birlashtirdik.",
+    "text2": "Biz stomatologga tashrif qulay bo'lishi kerakligini tushunamiz. Shuning uchun biz og'riqsiz davolash usullarini joriy etdik, faqat sertifikatlangan materiallardan foydalanamiz va sterillikni qat'iy nazorat qilamiz.",
+    "badge": "Premium sifat"
+  },
+  "services": {
+    "title": "Bizning Xizmatlar",
+    "subtitle": "Og'iz bo'shlig'i sog'lig'iga kompleks yondashuvni taklif qilamiz",
+    "therapy": "Terapiya",
+    "therapy_desc": "Kariesni davolash, tish kanallarini tozalash va tishlarning estetik restavratsiyasi.",
+    "implants": "Implantatsiya",
+    "implants_desc": "Yo'qotilgan tishlarni og'riqsiz, barchasi ichida innovatsion implantlar bilan tiklash.",
+    "orthodontics": "Ortodontiya",
+    "orthodontics_desc": "Kattalar va bolalar uchun breketlar va elaynerlar yordamida tish tishlamini to'g'rilash.",
+    "orthopedics": "Ortopediya",
+    "orthopedics_desc": "Protezlash, tish qoplamalari (koronka), metallokeramika va vinirlar o'rnatish.",
+    "surgery": "Xirurgiya",
+    "surgery_desc": "Har qanday murakkablikdagi tishlarni og'riqsiz sug'urish va suyak plastikasi.",
+    "hygiene": "Gigiyena va oqartirish",
+    "hygiene_desc": "AirFlow professional ultratovushli tozalash va xavfsiz tish oqartirish."
+  },
+  "doctors": {
+    "title": "Mutaxassislarimiz",
+    "subtitle": "O'z ishining ustalari, o'z bilimlarini doimiy ravishda oshirib boradilar",
+    "experience": "Ish tajribasi:"
+  },
+  "prices": {
+    "title": "Xizmatlar Narxi",
+    "subtitle": "Yashirin to'lovlarsiz shaffof narxlar",
+    "service": "Xizmat",
+    "price": "Narxi",
+    "consultation": "Shifokor maslahati",
+    "caries": "Kariesni davolash (1 ta tish)",
+    "pulpitis": "Pulpitni davolash (1 kanal)",
+    "hygiene": "Prof. tozalash (ikkala jag')",
+    "bleaching": "Zoom4 tish oqartirish",
+    "implants": "Straumann implanti (Shveytsariya)",
+    "veneers": "E-max keramik viniri",
+    "metal_free": "Sirkoniy dioksidli qoplama (koronka)",
+    "from": "dan",
+    "currency": "so'm"
+  },
+  "booking": {
+    "title": "Onlayn Qabulga Yozilish",
+    "subtitle": "Shaklni to'ldiring va operatorimiz vaqtni tasdiqlash uchun siz bilan bog'lanadi",
+    "name": "Ismingiz",
+    "phone": "Telefon raqamingiz",
+    "doctor": "Shifokorni tanlang",
+    "service": "Xizmat",
+    "date": "Sizga qulay sana",
+    "time": "Sizga qulay vaqt",
+    "notes": "Izoh / Istaklar",
+    "submit": "So'rov yuborish",
+    "success_title": "So'rov muvaffaqiyatli yuborildi!",
+    "success_desc": "Tashrif vaqtini tasdiqlash uchun 15 daqiqa ichida siz bilan bog'lanamiz.",
+    "error": "Yuborishda xatolik yuz berdi. Iltimos, keyinroq qayta urinib ko'ring.",
+    "select_doctor": "Mutaxassisni tanlang",
+    "select_service": "Muolajani tanlang"
+  },
+  "faq": {
+    "title": "Ko'p beriladigan savollar",
+    "q1": "Klinikangizda tish davolatish og'riqlimi?",
+    "a1": "Yo'q, biz davolash paytida noqulaylikni butunlay yo'q qiladigan zamonaviy va samarali og'riqsizlantiruvchi vositalardan foydalanamiz.",
+    "q2": "Implantlarning qaysi brendlaridan foydalanasiz?",
+    "a2": "Biz dunyoning yetakchi brendlari, jumladan Straumann (Shveytsariya), Osstem (Janubiy Koreya) va Dentium bilan ishlaymiz.",
+    "q3": "Xizmatlarga kafolat beriladimi?",
+    "a3": "Ha, klinika shifokor tavsiyalariga va muntazam gigiyenaga rioya qilingan taqdirda plomba, qoplama va implantlarga rasmiy kafolat beradi.",
+    "q4": "Davolanishni bo'lib to'lashga rasmiylashtirish mumkinmi?",
+    "a4": "Ha, biz yirik davolash turlari (implantatsiya, breketlar, vinirlar) uchun foizsiz va yashirin to'lovlarsiz bo'lib to'lash imkonini beramiz."
+  },
+  "footer": {
+    "rights": "Barcha huquqlar himoyalangan. Prodent Stomatologiya.",
+    "schedule": "Ish tartibi: Dsh-Shb 09:00 - 20:00, Yak - Dam olish kuni",
+    "emergency": "Shoshilinch yordam: +998 71 123-45-67"
+  }
+}
