@@ -17,7 +17,7 @@ interface Doctor {
   working_hours: Record<string, string[]> | null;
 }
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://prodent-htae.onrender.com';
 
 export const Doctors = () => {
   const { t, language } = useLanguage();
