@@ -28,28 +28,50 @@ export const Doctors = () => {
     const fetchDoctors = async () => {
       try {
         const res = await axios.get(`${API_URL}/api/users/doctors/`);
-        setDoctors(res.data);
+        if (res.data && res.data.length > 0) {
+          setDoctors(res.data);
+        } else {
+          throw new Error("No doctors found in DB");
+        }
       } catch (err) {
         console.error("Failed to fetch doctors from API:", err);
         // Fallback static seed if backend is offline or loading
         setDoctors([
           {
             id: 1,
-            first_name: "Азиз",
-            last_name: "Азизов",
-            specialization: "Стоматолог-терапевт",
-            bio: "Специалист высшей категории с опытом работы более 12 лет. Специализируется на эндодонтии и лечении зубов под микроскопом.",
+            first_name: "Фаррух Расулович",
+            last_name: "Хужанов",
+            specialization: "Ортопед-хирург",
+            bio: "Ведущий специалист клиники. Огромный опыт работы в ортопедии и сложной хирургии.",
             avatar: null,
             working_hours: { "Пн-Пт": ["09:00", "18:00"] }
           },
           {
             id: 2,
-            first_name: "Сардор",
-            last_name: "Саидов",
-            specialization: "Стоматолог-ортопед",
-            bio: "Эксперт в области эстетического протезирования, установки ультраниров и коронковых протезов любой сложности.",
+            first_name: "Бекзод Баймуратович",
+            last_name: "Мухтаров",
+            specialization: "Имплантолог-хирург",
+            bio: "Специалист по дентальной имплантации и костной пластике любой сложности.",
             avatar: null,
-            working_hours: { "Вт-Чт, Сб": ["09:00", "18:00"] }
+            working_hours: { "Вт-Сб": ["09:00", "18:00"] }
+          },
+          {
+            id: 3,
+            first_name: "Шохрух Расулович",
+            last_name: "Хужанов",
+            specialization: "Терапевт-ортодонт",
+            bio: "Эксперт в области исправления прикуса и эстетической стоматологии.",
+            avatar: null,
+            working_hours: { "Пн-Ср, Пт": ["09:00", "18:00"] }
+          },
+          {
+            id: 4,
+            first_name: "Мирзоубайдуллохон",
+            last_name: "Илёсхонов",
+            specialization: "Терапевт-ортодонт",
+            bio: "Специализируется на лечении кариеса, пульпита и современных ортодонтических системах.",
+            avatar: null,
+            working_hours: { "Вт-Сб": ["09:00", "18:00"] }
           }
         ]);
       } finally {

@@ -58,10 +58,52 @@ export const Contact = () => {
           axios.get(`${API_URL}/api/users/doctors/`),
           axios.get(`${API_URL}/api/appointments/services/`)
         ]);
-        setDoctors(docsRes.data);
+        if (docsRes.data && docsRes.data.length > 0) {
+          setDoctors(docsRes.data);
+        } else {
+          throw new Error("No doctors found in DB");
+        }
         setServices(servRes.data);
       } catch (err) {
         console.error("Failed to fetch doctors/services from API:", err);
+        setDoctors([
+          {
+            id: 1,
+            first_name: "Фаррух Расулович",
+            last_name: "Хужанов",
+            specialization: "Ортопед-хирург",
+            bio: "",
+            avatar: null,
+            working_hours: null
+          },
+          {
+            id: 2,
+            first_name: "Бекзод Баймуратович",
+            last_name: "Мухтаров",
+            specialization: "Имплантолог-хирург",
+            bio: "",
+            avatar: null,
+            working_hours: null
+          },
+          {
+            id: 3,
+            first_name: "Шохрух Расулович",
+            last_name: "Хужанов",
+            specialization: "Терапевт-ортодонт",
+            bio: "",
+            avatar: null,
+            working_hours: null
+          },
+          {
+            id: 4,
+            first_name: "Мирзоубайдуллохон",
+            last_name: "Илёсхонов",
+            specialization: "Терапевт-ортодонт",
+            bio: "",
+            avatar: null,
+            working_hours: null
+          }
+        ]);
       }
     };
     fetchData();
