@@ -34,7 +34,11 @@ SECRET_KEY = env('SECRET_KEY', default='dummy-secret-key-for-build')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env('DEBUG', default=False)
 
-ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=[])
+ALLOWED_HOSTS = [
+    'localhost',
+    '127.0.0.1',
+    'prodent-hfae.onrender.com'
+]
 
 
 # Application definition
@@ -142,8 +146,21 @@ SIMPLE_JWT = {
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
 }
 
-CORS_ALLOWED_ORIGINS = env.list('CORS_ALLOWED_ORIGINS', default=[])
-CSRF_TRUSTED_ORIGINS = env.list('CSRF_TRUSTED_ORIGINS', default=[])
+CORS_ALLOWED_ORIGINS = [
+    'https://prodent-7kc.pages.dev',
+    'https://0e8d74f1.prodent-7kc.pages.dev',
+    'http://localhost:3000',
+    'http://localhost:8000',
+    'https://prodent-hfae.onrender.com'
+]
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://prodent-7kc.pages.dev',
+    'https://0e8d74f1.prodent-7kc.pages.dev',
+    'http://localhost:3000',
+    'http://localhost:8000',
+    'https://prodent-hfae.onrender.com'
+]
 
 LANGUAGE_CODE = 'ru-ru'
 TIME_ZONE = 'Asia/Tashkent'
