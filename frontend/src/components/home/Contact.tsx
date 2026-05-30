@@ -71,37 +71,25 @@ export const Contact = () => {
             id: 1,
             first_name: "Фаррух Расулович",
             last_name: "Хужанов",
-            specialization: "Ортопед-хирург",
-            bio: "",
-            avatar: null,
-            working_hours: null
+            specialization: "Ортопед-хирург"
           },
           {
             id: 2,
             first_name: "Бекзод Баймуратович",
             last_name: "Мухтаров",
-            specialization: "Имплантолог-хирург",
-            bio: "",
-            avatar: null,
-            working_hours: null
+            specialization: "Имплантолог-хирург"
           },
           {
             id: 3,
             first_name: "Шохрух Расулович",
             last_name: "Хужанов",
-            specialization: "Терапевт-ортодонт",
-            bio: "",
-            avatar: null,
-            working_hours: null
+            specialization: "Терапевт-ортодонт"
           },
           {
             id: 4,
             first_name: "Мирзоубайдуллохон",
             last_name: "Илёсхонов",
-            specialization: "Терапевт-ортодонт",
-            bio: "",
-            avatar: null,
-            working_hours: null
+            specialization: "Терапевт-ортодонт"
           }
         ]);
       }
