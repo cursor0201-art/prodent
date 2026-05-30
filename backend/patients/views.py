@@ -13,14 +13,14 @@ class PatientViewSet(viewsets.ModelViewSet):
     filterset_fields = ['gender']
 
 class DentalRecordViewSet(viewsets.ModelViewSet):
-    queryset = DentalRecord.objects.all()
+    queryset = DentalRecord.objects.all().select_related('patient')
     serializer_class = DentalRecordSerializer
     permission_classes = [permissions.IsAuthenticated, IsDoctorOrAdmin]
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['patient', 'tooth_number']
 
 class PatientFileViewSet(viewsets.ModelViewSet):
-    queryset = PatientFile.objects.all().order_by('-uploaded_at')
+    queryset = PatientFile.objects.all().order_by('-uploaded_at').select_related('patient')
     serializer_class = PatientFileSerializer
     permission_classes = [permissions.IsAuthenticated, IsDoctorOrAdmin]
     filter_backends = [DjangoFilterBackend]

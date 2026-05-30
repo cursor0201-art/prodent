@@ -48,7 +48,7 @@ class AppointmentViewSet(viewsets.ModelViewSet):
         return [permissions.IsAuthenticated()]
     
     def get_queryset(self):
-        queryset = super().get_queryset()
+        queryset = Appointment.objects.all().order_by('-start_time').select_related('patient', 'doctor', 'service')
         start_date = self.request.query_params.get('start_date') # e.g. YYYY-MM-DD
         end_date = self.request.query_params.get('end_date')
         doctor_id = self.request.query_params.get('doctor')

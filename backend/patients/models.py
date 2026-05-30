@@ -5,8 +5,8 @@ class Patient(models.Model):
         MALE = 'MALE', 'Мужской'
         FEMALE = 'FEMALE', 'Женский'
 
-    first_name = models.CharField(max_length=100)
-    last_name = models.CharField(max_length=100)
+    first_name = models.CharField(max_length=100, db_index=True)
+    last_name = models.CharField(max_length=100, db_index=True)
     patronymic = models.CharField(max_length=100, blank=True, null=True) # Отчество
     phone = models.CharField(max_length=20, unique=True)
     birth_date = models.DateField()
