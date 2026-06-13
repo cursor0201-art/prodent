@@ -19,6 +19,46 @@ interface Doctor {
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://prodent-hfae.onrender.com';
 
+const DoctorAvatar = ({ avatar, lastName, doctorId }: { avatar: string | null; lastName: string; doctorId: number }) => {
+  const [src, setSrc] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (avatar) {
+      const apiSrc = avatar.startsWith('http') || (avatar.startsWith('/') && !avatar.startsWith('/media/'))
+        ? avatar
+        : `${API_URL}${avatar}`;
+      setSrc(apiSrc);
+    } else {
+      if (doctorId === 1 || lastName === 'Хужанов') {
+        setSrc('/doctors/farrukh.jpg');
+      } else {
+        setSrc(null);
+      }
+    }
+  }, [avatar, doctorId, lastName]);
+
+  if (!src) {
+    return <User className="h-16 w-16 opacity-40" />;
+  }
+
+  return (
+    <Image 
+      src={src} 
+      alt={lastName} 
+      className="object-cover w-full h-full" 
+      width={128}
+      height={128}
+      onError={() => {
+        if (doctorId === 1 || lastName === 'Хужанов') {
+          setSrc('/doctors/farrukh.jpg');
+        } else {
+          setSrc(null);
+        }
+      }}
+    />
+  );
+};
+
 export const Doctors = () => {
   const { t, language } = useLanguage();
   const [doctors, setDoctors] = useState<Doctor[]>([]);
@@ -113,17 +153,7 @@ export const Doctors = () => {
             >
               {/* Doctor Avatar */}
               <div className="w-32 h-32 rounded-2xl bg-blue-100 border border-blue-200 flex-shrink-0 overflow-hidden flex items-center justify-center text-blue-600">
-                {doc.avatar ? (
-                  <Image 
-                    src={doc.avatar.startsWith('http') || (doc.avatar.startsWith('/') && !doc.avatar.startsWith('/media/')) ? doc.avatar : `${API_URL}${doc.avatar}`} 
-                    alt={`${doc.last_name}`} 
-                    className="object-cover w-full h-full" 
-                    width={128}
-                    height={128}
-                  />
-                ) : (
-                  <User className="h-16 w-16 opacity-40" />
-                )}
+                <DoctorAvatar avatar={doc.avatar} lastName={doc.last_name} doctorId={doc.id} />
               </div>
 
               {/* Doctor Bio and Info */}
