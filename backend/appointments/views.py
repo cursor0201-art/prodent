@@ -71,6 +71,7 @@ class AppointmentViewSet(viewsets.ModelViewSet):
             first_name = data.get('patient_first_name', '')
             last_name = data.get('patient_last_name', '')
             phone = data.get('patient_phone', '')
+            birth_date = data.get('patient_birth_date')
             
             if not phone:
                 return Response({"error": "Телефон обязателен для записи"}, status=status.HTTP_400_BAD_REQUEST)
@@ -84,10 +85,15 @@ class AppointmentViewSet(viewsets.ModelViewSet):
                 defaults={
                     'first_name': first_name or 'Новый',
                     'last_name': last_name or 'Пациент',
-                    'birth_date': '2000-01-01', # placeholder
+                    'birth_date': birth_date or '2000-01-01',
                     'gender': Patient.Gender.MALE
                 }
             )
+            # If patient already existed, optionally update their birth_date if not set to default
+            if not created and birth_date and patient.birth_date == '2000-01-01':
+                patient.birth_date = birth_date
+                patient.save()
+                
             data['patient'] = patient.id
             
         serializer = self.get_serializer(data=data)

@@ -43,7 +43,7 @@ export const Doctors = () => {
             last_name: "Хужанов",
             specialization: "Ортопед-хирург",
             bio: "Ведущий специалист клиники. Огромный опыт работы в ортопедии и сложной хирургии.",
-            avatar: null,
+            avatar: "/doctors/farrukh.jpg",
             working_hours: { "Пн-Пт": ["09:00", "18:00"] }
           },
           {
@@ -115,7 +115,7 @@ export const Doctors = () => {
               <div className="w-32 h-32 rounded-2xl bg-blue-100 border border-blue-200 flex-shrink-0 overflow-hidden flex items-center justify-center text-blue-600">
                 {doc.avatar ? (
                   <Image 
-                    src={doc.avatar.startsWith('http') ? doc.avatar : `${API_URL}${doc.avatar}`} 
+                    src={doc.avatar.startsWith('http') || (doc.avatar.startsWith('/') && !doc.avatar.startsWith('/media/')) ? doc.avatar : `${API_URL}${doc.avatar}`} 
                     alt={`${doc.last_name}`} 
                     className="object-cover w-full h-full" 
                     width={128}

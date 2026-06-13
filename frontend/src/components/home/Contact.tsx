@@ -31,6 +31,7 @@ export const Contact = () => {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [phone, setPhone] = useState('+998');
+  const [birthDate, setBirthDate] = useState('');
   const [doctorId, setDoctorId] = useState('');
   const [serviceId, setServiceId] = useState('');
   const [bookingDate, setBookingDate] = useState('');
@@ -122,7 +123,7 @@ export const Contact = () => {
     setError('');
     setSuccess(false);
 
-    if (!firstName || !lastName || !phone || !doctorId || !bookingDate || !bookingTime) {
+    if (!firstName || !lastName || !phone || !birthDate || !doctorId || !bookingDate || !bookingTime) {
       setError(language === 'ru' ? 'Пожалуйста, заполните все обязательные поля.' : 'Iltimos, barcha majburiy maydonlarni to\'ldiring.');
       setLoading(false);
       return;
@@ -137,6 +138,7 @@ export const Contact = () => {
         patient_first_name: firstName,
         patient_last_name: lastName,
         patient_phone: phone,
+        patient_birth_date: birthDate,
         doctor: parseInt(doctorId),
         service: serviceId ? parseInt(serviceId) : null,
         start_time: startDateTime.toISOString(),
@@ -152,6 +154,7 @@ export const Contact = () => {
       setFirstName('');
       setLastName('');
       setPhone('+998');
+      setBirthDate('');
       setDoctorId('');
       setServiceId('');
       setBookingDate('');
@@ -325,16 +328,30 @@ export const Contact = () => {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     <div className="space-y-1.5">
                       <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">{t.booking.phone} *</label>
-                      <PatternFormat
-                        format="+998 (##) ###-##-##"
-                        allowEmptyFormatting
-                        mask="_"
-                        value={phone}
-                        onValueChange={(values) => setPhone(values.formattedValue)}
-                        className="w-full h-12 px-4 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all text-slate-800 text-sm font-semibold"
+                      <input 
+                        type="tel"
                         required
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                        className="w-full h-12 px-4 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all text-slate-800 text-sm font-semibold"
+                        placeholder="+998 90 123-45-67"
                       />
                     </div>
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">
+                        {language === 'ru' ? 'Дата рождения *' : 'Tug\'ilgan sana *'}
+                      </label>
+                      <input 
+                        type="date"
+                        required
+                        value={birthDate}
+                        onChange={(e) => setBirthDate(e.target.value)}
+                        className="w-full h-12 px-4 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all text-slate-800 text-sm font-semibold"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     <div className="space-y-1.5">
                       <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">{t.booking.doctor} *</label>
                       <select 
@@ -351,10 +368,7 @@ export const Contact = () => {
                         ))}
                       </select>
                     </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
-                    <div className="space-y-1.5 sm:col-span-1">
+                    <div className="space-y-1.5">
                       <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">{t.booking.service}</label>
                       <select 
                         value={serviceId}
@@ -369,7 +383,9 @@ export const Contact = () => {
                         ))}
                       </select>
                     </div>
+                  </div>
 
+                  <div className="grid grid-cols-1 gap-5">
                     <div className="space-y-1.5">
                       <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">{t.booking.date} *</label>
                       <input 
@@ -380,8 +396,9 @@ export const Contact = () => {
                         className="w-full h-12 px-4 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all text-slate-800 text-sm font-semibold" 
                       />
                     </div>
+                  </div>
 
-                    <div className="space-y-1.5 col-span-1 sm:col-span-3">
+                  <div className="space-y-1.5">
                       <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">{t.booking.time} *</label>
                       
                       {!doctorId || !bookingDate ? (
@@ -415,7 +432,6 @@ export const Contact = () => {
                         </div>
                       )}
                     </div>
-                  </div>
 
                   <div className="space-y-1.5">
                     <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">{t.booking.notes}</label>
