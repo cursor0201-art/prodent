@@ -125,8 +125,6 @@ export const Hero = () => {
               </a>
               <div className="mt-2 flex gap-2">
                 <a href="https://t.me/prodent_stomatologiya" target="_blank" className="text-xs text-blue-500 hover:underline">Telegram</a>
-                <span className="text-slate-300">•</span>
-                <a href="https://wa.me/998901234567" target="_blank" className="text-xs text-green-500 hover:underline">WhatsApp</a>
               </div>
             </div>
             

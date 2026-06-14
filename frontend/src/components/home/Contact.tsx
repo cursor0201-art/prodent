@@ -263,14 +263,6 @@ export const Contact = () => {
                 <Send className="h-4 w-4" />
                 Telegram
               </a>
-              <a 
-                href="https://wa.me/998901234567" 
-                target="_blank"
-                className="flex items-center gap-2 bg-green-500 text-white px-5 py-2.5 rounded-full text-sm font-bold border border-green-400 hover:bg-green-400 transition-all"
-              >
-                <MessageCircle className="h-4 w-4" />
-                WhatsApp
-              </a>
             </div>
           </div>
 
