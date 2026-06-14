@@ -28,6 +28,9 @@ const DoctorAvatar = ({ avatar, firstName, lastName, doctorId }: { avatar: strin
         ? '/doctors/shokhrukh.jpg'
         : '/doctors/farrukh.jpg';
     }
+    if (lastName === 'Мухтаров' || doctorId === 2 || doctorId === 8) {
+      return '/doctors/bekzod.jpg';
+    }
     if (doctorId === 1 || doctorId === 7) {
       return '/doctors/farrukh.jpg';
     }
@@ -96,7 +99,7 @@ export const Doctors = () => {
             last_name: "Мухтаров",
             specialization: "Имплантолог-хирург",
             bio: "Специалист по дентальной имплантации и костной пластике любой сложности.",
-            avatar: null,
+            avatar: "/doctors/bekzod.jpg",
             working_hours: { "Вт-Сб": ["09:00", "18:00"] }
           },
           {
