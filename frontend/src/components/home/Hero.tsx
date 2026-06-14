@@ -120,8 +120,8 @@ export const Hero = () => {
               <p className="text-xs font-bold text-blue-600 uppercase tracking-widest mb-1.5">
                 {language === 'ru' ? '📞 Связь напрямую' : '📞 To\'g\'ridan-to\'g\'ri aloqa'}
               </p>
-              <a href="tel:+998711234567" className="text-lg font-extrabold text-slate-800 hover:text-blue-600 transition-colors">
-                +998 (71) 123-45-67
+              <a href="tel:+998999822292" className="text-lg font-extrabold text-slate-800 hover:text-blue-600 transition-colors">
+                +998 (99) 982-22-92
               </a>
               <div className="mt-2 flex gap-2">
                 <a href="https://t.me/prodent_stomatologiya" target="_blank" className="text-xs text-blue-500 hover:underline">Telegram</a>

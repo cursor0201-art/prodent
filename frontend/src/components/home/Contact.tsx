@@ -221,7 +221,7 @@ export const Contact = () => {
                   </div>
                   <div>
                     <p className="text-xs text-blue-200 uppercase tracking-widest font-bold mb-1">{language === 'ru' ? 'Телефон' : 'Telefon'}</p>
-                    <a href="tel:+998711234567" className="text-lg font-bold hover:underline">+998 (71) 123-45-67</a>
+                    <a href="tel:+998999822292" className="text-lg font-bold hover:underline">+998 (99) 982-22-92</a>
                   </div>
                 </div>
 
@@ -249,7 +249,7 @@ export const Contact = () => {
 
             <div className="relative z-10 mt-12 pt-8 border-t border-white/10 flex flex-wrap gap-4">
               <a 
-                href="tel:+998711234567"
+                href="tel:+998999822292"
                 className="flex items-center gap-2 bg-white text-blue-600 px-5 py-2.5 rounded-full text-sm font-bold shadow-md hover:bg-slate-50 transition-all"
               >
                 <Phone className="h-4 w-4" />
@@ -351,7 +351,7 @@ export const Contact = () => {
                         value={phone}
                         onChange={(e) => setPhone(e.target.value)}
                         className="w-full h-12 px-4 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all text-slate-800 text-sm font-semibold"
-                        placeholder="+998 90 123-45-67"
+                        placeholder="+998 99 982-22-92"
                       />
                     </div>
                     <div className="space-y-1.5">
