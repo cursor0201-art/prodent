@@ -473,7 +473,7 @@ export default function CalendarPage() {
                     <option value="">Выберите услугу (по желанию)</option>
                     {services.map(s => (
                       <option key={s.id} value={s.id}>
-                        {s.name_ru} ({parseFloat(s.price).toLocaleString()} сум)
+                        {s.name_ru}
                       </option>
                     ))}
                   </select>
