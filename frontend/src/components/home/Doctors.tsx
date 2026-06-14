@@ -181,7 +181,7 @@ export const Doctors = () => {
                   <div className="pt-2 border-t border-slate-200/60 flex items-center gap-2 text-xs text-slate-500 font-semibold">
                     <Calendar className="h-4 w-4 text-blue-600" />
                     <span>
-                      {language === 'ru' ? 'График работы: С 8:00 до 24:00' : 'Ish grafigi: 8:00 dan 24:00 gacha'}
+                      {language === 'ru' ? 'График работы: С 8:00 до 00:00' : 'Ish grafigi: 8:00 dan 00:00 gacha'}
                     </span>
                   </div>
 
