@@ -178,19 +178,12 @@ export const Doctors = () => {
                   {doc.bio}
                 </p>
 
-                {doc.working_hours && (
                   <div className="pt-2 border-t border-slate-200/60 flex items-center gap-2 text-xs text-slate-500 font-semibold">
                     <Calendar className="h-4 w-4 text-blue-600" />
                     <span>
-                      {language === 'ru' ? 'График работы:' : 'Ish grafigi:'}{' '}
-                      {Object.entries(doc.working_hours).map(([days, hours]) => (
-                        <span key={days} className="text-slate-700">
-                          {days} ({hours.join(' - ')})
-                        </span>
-                      ))}
+                      {language === 'ru' ? 'График работы: С 8:00 до 24:00' : 'Ish grafigi: 8:00 dan 24:00 gacha'}
                     </span>
                   </div>
-                )}
 
                 <div className="pt-2">
                   <a href="#book" className="inline-flex items-center gap-1.5 text-sm text-blue-600 font-bold hover:underline">
