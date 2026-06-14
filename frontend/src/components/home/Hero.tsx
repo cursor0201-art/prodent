@@ -105,8 +105,8 @@ export const Hero = () => {
             <div className="relative z-10 rounded-[2rem] overflow-hidden shadow-2xl border-4 border-white bg-white">
               <div className="w-full aspect-[4/3] relative">
                 <Image 
-                  src="https://images.unsplash.com/photo-1629909613654-28e377c37b09?auto=format&fit=crop&q=80&w=1200" 
-                  alt="Modern Dental Clinic" 
+                  src="/clinic-exterior.jpg" 
+                  alt="Prodent Stomatologiya Clinic Exterior" 
                   className="object-cover w-full h-full"
                   width={1200}
                   height={900}
