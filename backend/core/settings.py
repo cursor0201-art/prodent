@@ -128,6 +128,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 USE_I18N = True
 USE_TZ = True
+TIME_ZONE = 'Asia/Tashkent'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'users.User'

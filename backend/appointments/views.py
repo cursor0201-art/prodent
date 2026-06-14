@@ -204,9 +204,9 @@ class AppointmentViewSet(viewsets.ModelViewSet):
         except ValueError:
             return Response({"error": "Неверный формат даты"}, status=400)
 
-        # TODO: Get doctor's actual working hours from User model. Using default 09:00 - 18:00
-        start_time = datetime.combine(target_date, datetime.strptime('09:00', '%H:%M').time())
-        end_time = datetime.combine(target_date, datetime.strptime('18:00', '%H:%M').time())
+        # TODO: Get doctor's actual working hours from User model. Using default 08:00 - 00:00
+        start_time = datetime.combine(target_date, datetime.strptime('08:00', '%H:%M').time())
+        end_time = datetime.combine(target_date + timedelta(days=1), datetime.strptime('00:00', '%H:%M').time())
 
         # Get existing appointments for the doctor on that date
         existing_appts = Appointment.objects.filter(
