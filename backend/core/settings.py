@@ -162,7 +162,9 @@ CORS_ALLOWED_ORIGINS = [
     'https://0e8d74f1.prodent-7kc.pages.dev',
     'http://localhost:3000',
     'http://localhost:8000',
-    'https://prodent-hfae.onrender.com'
+    'https://prodent-hfae.onrender.com',
+    'https://sharkdenta.uz',
+    'https://www.sharkdenta.uz'
 ]
 
 CSRF_TRUSTED_ORIGINS = [
@@ -170,7 +172,9 @@ CSRF_TRUSTED_ORIGINS = [
     'https://0e8d74f1.prodent-7kc.pages.dev',
     'http://localhost:3000',
     'http://localhost:8000',
-    'https://prodent-hfae.onrender.com'
+    'https://prodent-hfae.onrender.com',
+    'https://sharkdenta.uz',
+    'https://www.sharkdenta.uz'
 ]
 
 LANGUAGE_CODE = 'ru-ru'

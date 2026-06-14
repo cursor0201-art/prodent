@@ -51,12 +51,20 @@ class Command(BaseCommand):
                     **doc_data,
                 }
             )
+            passwords_map = {
+                'dr_farrukh': 'Prodent2026_Farrukh',
+                'dr_bekzod': 'Prodent2026_Bekzod',
+                'dr_shokhrukh': 'Prodent2026_Shokhrukh',
+                'dr_mirzoubay': 'Prodent2026_Mirzo'
+            }
+            pwd = passwords_map.get(username, 'doctor123')
+            user.set_password(pwd)
+            user.save()
+
             if created:
-                user.set_password('doctor123')
-                user.save()
-                self.stdout.write(self.style.SUCCESS(f'Created doctor: {user}'))
+                self.stdout.write(self.style.SUCCESS(f'Created doctor: {user} with password {pwd}'))
             else:
-                self.stdout.write(self.style.WARNING(f'Doctor already exists: {user}'))
+                self.stdout.write(self.style.WARNING(f'Updated existing doctor: {user} with password {pwd}'))
 
         # Ensure admin superuser exists
         if not User.objects.filter(username='admin').exists():
