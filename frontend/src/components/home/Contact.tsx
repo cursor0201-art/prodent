@@ -93,6 +93,13 @@ export const Contact = () => {
             specialization: "Терапевт-ортодонт"
           }
         ]);
+        setServices([
+          { id: 1, name_ru: "Консультация врача", name_uz: "Shifokor maslahati", price: "50000.00" },
+          { id: 2, name_ru: "Лечение кариеса (1 зуб)", name_uz: "Kariesni davolash (1 ta tish)", price: "350000.00" },
+          { id: 3, name_ru: "Установка керамического винира", name_uz: "Keramik vinir o'rnatish", price: "2000000.00" },
+          { id: 4, name_ru: "Имплант Straumann (Швейцария)", name_uz: "Straumann implanti (Shveytsariya)", price: "5500000.00" },
+          { id: 5, name_ru: "Проф. чистка (две челюсти)", name_uz: "Prof. tozalash (ikkala jag')", price: "400000.00" }
+        ]);
       }
     };
     fetchData();
