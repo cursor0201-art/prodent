@@ -479,7 +479,7 @@ export const Contact = () => {
             {/* Embedded Google Maps Widget */}
             <div className="mt-8 h-48 w-full bg-slate-100 rounded-2xl overflow-hidden shadow-inner relative border border-slate-100">
               <iframe 
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2996.064975924716!2d69.27891831542566!3d41.32924197926955!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x38ae8b488734293f%3A0xc82643a6d4d12c8b!2sAmir%20Temur%20Square!5e0!3m2!1sen!2suz!4v1655182903154!5m2!1sen!2suz" 
+                src="https://maps.google.com/maps?q=41.372667,69.266944&z=16&output=embed" 
                 width="100%" 
                 height="100%" 
                 style={{ border: 0 }} 
