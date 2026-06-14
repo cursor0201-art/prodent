@@ -47,3 +47,54 @@ def check_material_expirations():
     message = "\n".join(lines)
     send_telegram_message(message)
     return f"Отчет отправлен. Найдено материалов: {expiring_materials.count()}"
+
+@shared_task
+def send_appointment_reminders():
+    """
+    Каждую минуту проверяет записи на приём и отправляет напоминания:
+    за 1 час, за 30 минут и за 10 минут.
+    """
+    from appointments.models import Appointment
+    now = timezone.now()
+    
+    # Ищем записи в ближайшие 65 минут, у которых есть chat_id
+    upcoming = Appointment.objects.filter(
+        status='BOOKED',
+        start_time__gte=now,
+        start_time__lte=now + timedelta(minutes=65),
+        patient__telegram_chat_id__isnull=False
+    ).exclude(patient__telegram_chat_id='')
+    
+    sent_count = 0
+    for appt in upcoming:
+        time_diff = (appt.start_time - now).total_seconds() / 60.0
+        
+        should_send = False
+        reminder_text = ""
+        
+        # Проверяем диапазоны в 1 минуту (т.к. cron работает каждую минуту)
+        if 59 <= time_diff < 60:
+            should_send = True
+            reminder_text = "ровно через 1 час"
+        elif 29 <= time_diff < 30:
+            should_send = True
+            reminder_text = "через 30 минут"
+        elif 9 <= time_diff < 10:
+            should_send = True
+            reminder_text = "через 10 минут"
+            
+        if should_send:
+            service_name = appt.service.name_ru if appt.service else 'Консультация'
+            message = (
+                f"🔔 <b>Напоминание о приёме!</b>\n\n"
+                f"Здравствуйте, {appt.patient.first_name}! 👋\n"
+                f"Ваш приём у стоматолога начнется <b>{reminder_text}</b>.\n\n"
+                f"👨‍⚕️ Врач: <b>{appt.doctor}</b>\n"
+                f"🩺 Услуга: {service_name}\n"
+                f"📅 Время: <b>{timezone.localtime(appt.start_time).strftime('%H:%M')}</b>\n\n"
+                f"Ждем вас!"
+            )
+            send_telegram_message(message, to_chat_id=appt.patient.telegram_chat_id)
+            sent_count += 1
+            
+    return f"Отправлено напоминаний: {sent_count}"

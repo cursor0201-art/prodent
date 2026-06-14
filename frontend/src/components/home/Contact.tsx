@@ -291,8 +291,12 @@ export const Contact = () => {
                   {successPatientId && (
                     <div className="mt-2 p-4 bg-blue-50 border border-blue-100 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                       <div>
-                        <p className="text-xs font-bold text-blue-800">Получать напоминания о приёмах в Telegram?</p>
-                        <p className="text-[11px] text-blue-600 font-semibold mt-0.5">Бот пришлет вам напоминание за час до приёма.</p>
+                        <p className="text-xs font-bold text-blue-800">
+                          {language === 'ru' ? 'Получать напоминания о приёмах в Telegram?' : 'Telegram orqali eslatmalar olishni xohlaysizmi?'}
+                        </p>
+                        <p className="text-[11px] text-blue-600 font-semibold mt-0.5">
+                          {language === 'ru' ? 'Бот пришлет напоминания за 1 час, 30 минут и 10 минут до приёма.' : 'Bot qabuldan 1 soat, 30 daqiqa va 10 daqiqa oldin eslatma yuboradi.'}
+                        </p>
                       </div>
                       <a
                         href={`https://t.me/${process.env.NEXT_PUBLIC_TELEGRAM_BOT_USERNAME || 'prodent_stomatologiya_bot'}?start=patient_${successPatientId}`}

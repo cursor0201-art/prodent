@@ -190,9 +190,21 @@ TELEGRAM_BOT_TOKEN = env('TELEGRAM_BOT_TOKEN', default='')
 TELEGRAM_CHAT_ID = env('TELEGRAM_CHAT_ID', default='')
 
 # Celery Configuration
-CELERY_BROKER_URL = env('CELERY_BROKER_URL', default='redis://localhost:6379/0')
-CELERY_RESULT_BACKEND = env('CELERY_RESULT_BACKEND', default='redis://localhost:6379/0')
+CELERY_BROKER_URL = os.environ.get('REDIS_URL', 'redis://localhost:6379/0')
+CELERY_RESULT_BACKEND = os.environ.get('REDIS_URL', 'redis://localhost:6379/0')
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
-CELERY_TIMEZONE = TIME_ZONE
 
+from celery.schedules import crontab
+
+CELERY_BEAT_SCHEDULE = {
+    'send-appointment-reminders': {
+        'task': 'core.tasks.send_appointment_reminders',
+        'schedule': crontab(minute='*'), # Каждую минуту
+    },
+    'check-material-expirations': {
+        'task': 'core.tasks.check_material_expirations',
+        'schedule': crontab(minute=0, hour=9), # Каждый день в 09:00
+    },
+}
+CELERY_TIMEZONE = TIME_ZONE
