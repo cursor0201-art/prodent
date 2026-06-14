@@ -19,8 +19,20 @@ interface Doctor {
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://prodent-hfae.onrender.com';
 
-const DoctorAvatar = ({ avatar, lastName, doctorId }: { avatar: string | null; lastName: string; doctorId: number }) => {
+const DoctorAvatar = ({ avatar, firstName, lastName, doctorId }: { avatar: string | null; firstName: string; lastName: string; doctorId: number }) => {
   const [src, setSrc] = useState<string | null>(null);
+
+  const getFallbackSrc = () => {
+    if (lastName === 'Хужанов') {
+      return firstName.includes('Шохрух') || doctorId === 3 || doctorId === 9
+        ? '/doctors/shokhrukh.jpg'
+        : '/doctors/farrukh.jpg';
+    }
+    if (doctorId === 1 || doctorId === 7) {
+      return '/doctors/farrukh.jpg';
+    }
+    return null;
+  };
 
   useEffect(() => {
     if (avatar) {
@@ -29,13 +41,9 @@ const DoctorAvatar = ({ avatar, lastName, doctorId }: { avatar: string | null; l
         : `${API_URL}${avatar}`;
       setSrc(apiSrc);
     } else {
-      if (doctorId === 1 || lastName === 'Хужанов') {
-        setSrc('/doctors/farrukh.jpg');
-      } else {
-        setSrc(null);
-      }
+      setSrc(getFallbackSrc());
     }
-  }, [avatar, doctorId, lastName]);
+  }, [avatar, doctorId, lastName, firstName]);
 
   if (!src) {
     return <User className="h-16 w-16 opacity-40" />;
@@ -49,11 +57,7 @@ const DoctorAvatar = ({ avatar, lastName, doctorId }: { avatar: string | null; l
       width={128}
       height={128}
       onError={() => {
-        if (doctorId === 1 || lastName === 'Хужанов') {
-          setSrc('/doctors/farrukh.jpg');
-        } else {
-          setSrc(null);
-        }
+        setSrc(getFallbackSrc());
       }}
     />
   );
@@ -101,7 +105,7 @@ export const Doctors = () => {
             last_name: "Хужанов",
             specialization: "Терапевт-ортодонт",
             bio: "Эксперт в области исправления прикуса и эстетической стоматологии.",
-            avatar: null,
+            avatar: "/doctors/shokhrukh.jpg",
             working_hours: { "Пн-Ср, Пт": ["09:00", "18:00"] }
           },
           {
@@ -153,7 +157,7 @@ export const Doctors = () => {
             >
               {/* Doctor Avatar */}
               <div className="w-32 h-32 rounded-2xl bg-blue-100 border border-blue-200 flex-shrink-0 overflow-hidden flex items-center justify-center text-blue-600">
-                <DoctorAvatar avatar={doc.avatar} lastName={doc.last_name} doctorId={doc.id} />
+                <DoctorAvatar avatar={doc.avatar} firstName={doc.first_name} lastName={doc.last_name} doctorId={doc.id} />
               </div>
 
               {/* Doctor Bio and Info */}
