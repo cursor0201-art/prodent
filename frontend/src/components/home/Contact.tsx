@@ -231,7 +231,7 @@ export const Contact = () => {
                   </div>
                   <div>
                     <p className="text-xs text-blue-200 uppercase tracking-widest font-bold mb-1">{language === 'ru' ? 'Адрес' : 'Manzil'}</p>
-                    <p className="text-base font-semibold">{language === 'ru' ? 'г. Ташкент, ул. Амира Темура, 45' : 'Toshkent sh., Amir Temur ko\'chasi, 45-uy'}</p>
+                    <p className="text-base font-semibold">{language === 'ru' ? 'г. Ташкент, Юнусабад 7 квартал 40 дом' : 'Toshkent sh., Yunusobod 7-mavze, 40-uy'}</p>
                   </div>
                 </div>
 
