@@ -151,11 +151,19 @@ export const Contact = () => {
       const startDateTime = new Date(`${bookingDate}T${bookingTime}:00`);
       const endDateTime = new Date(startDateTime.getTime() + 45 * 60 * 1000); // default 45 mins duration
 
+      let formattedBirthDate = birthDate;
+      if (birthDate.includes('.')) {
+        const parts = birthDate.split('.');
+        if (parts.length === 3) {
+          formattedBirthDate = `${parts[2]}-${parts[1]}-${parts[0]}`;
+        }
+      }
+
       const payload = {
         patient_first_name: firstName,
         patient_last_name: lastName,
         patient_phone: phone,
-        patient_birth_date: birthDate,
+        patient_birth_date: formattedBirthDate,
         doctor: parseInt(doctorId),
         service: serviceId ? parseInt(serviceId) : null,
         start_time: startDateTime.toISOString(),
@@ -359,10 +367,17 @@ export const Contact = () => {
                         {language === 'ru' ? 'Дата рождения *' : 'Tug\'ilgan sana *'}
                       </label>
                       <input 
-                        type="date"
+                        type="text"
                         required
                         value={birthDate}
-                        onChange={(e) => setBirthDate(e.target.value)}
+                        onChange={(e) => {
+                          let val = e.target.value.replace(/[^\d]/g, '');
+                          if (val.length > 2) val = val.slice(0, 2) + '.' + val.slice(2);
+                          if (val.length > 5) val = val.slice(0, 5) + '.' + val.slice(5, 9);
+                          setBirthDate(val);
+                        }}
+                        placeholder="ДД.ММ.ГГГГ"
+                        maxLength={10}
                         className="w-full h-12 px-4 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all text-slate-800 text-sm font-semibold"
                       />
                     </div>

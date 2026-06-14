@@ -127,12 +127,20 @@ export default function PatientsPage() {
     const token = localStorage.getItem('access_token');
     const headers = { Authorization: `Bearer ${token}` };
 
+    let formattedBirthDate = birthDate;
+    if (birthDate.includes('.')) {
+      const parts = birthDate.split('.');
+      if (parts.length === 3) {
+        formattedBirthDate = `${parts[2]}-${parts[1]}-${parts[0]}`;
+      }
+    }
+
     const payload = {
       first_name: firstName,
       last_name: lastName,
       patronymic: patronymic,
       phone: phone,
-      birth_date: birthDate,
+      birth_date: formattedBirthDate,
       gender: gender,
       address: address,
       allergy_info: allergyInfo,
@@ -568,7 +576,20 @@ export default function PatientsPage() {
                   </div>
                   <div className="space-y-1">
                     <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Дата рождения *</label>
-                    <input type="date" required value={birthDate} onChange={(e) => setBirthDate(e.target.value)} className="w-full h-11 px-3.5 rounded-xl border border-slate-200 text-sm outline-none font-bold" />
+                    <input 
+                      type="text" 
+                      required 
+                      value={birthDate} 
+                      onChange={(e) => {
+                        let val = e.target.value.replace(/[^\d]/g, '');
+                        if (val.length > 2) val = val.slice(0, 2) + '.' + val.slice(2);
+                        if (val.length > 5) val = val.slice(0, 5) + '.' + val.slice(5, 9);
+                        setBirthDate(val);
+                      }}
+                      placeholder="ДД.ММ.ГГГГ"
+                      maxLength={10}
+                      className="w-full h-11 px-3.5 rounded-xl border border-slate-200 text-sm outline-none font-bold" 
+                    />
                   </div>
                 </div>
 
