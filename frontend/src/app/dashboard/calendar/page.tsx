@@ -88,7 +88,8 @@ export default function CalendarPage() {
   // Form Fields State
   const [patientId, setPatientId] = useState('');
   const [doctorId, setDoctorId] = useState('');
-  const [serviceId, setServiceId] = useState('');
+  const [customServiceName, setCustomServiceName] = useState('');
+  const [customPrice, setCustomPrice] = useState('');
   const [bookingDate, setBookingDate] = useState('');
   const [bookingTime, setBookingTime] = useState('');
   const [notes, setNotes] = useState('');
@@ -164,7 +165,8 @@ export default function CalendarPage() {
     setSelectedAppointment(null);
     setPatientId('');
     setDoctorId(doctors[0]?.id.toString() || '');
-    setServiceId('');
+    setCustomServiceName('');
+    setCustomPrice('');
     setBookingDate(dateStr || new Date().toISOString().split('T')[0]);
     setBookingTime('09:00');
     setNotes('');
@@ -174,11 +176,12 @@ export default function CalendarPage() {
     setIsModalOpen(true);
   };
 
-  const openEditModal = (appt: Appointment) => {
+  const openEditModal = (appt: any) => {
     setSelectedAppointment(appt);
     setPatientId(appt.patient.toString());
     setDoctorId(appt.doctor.toString());
-    setServiceId(appt.service ? appt.service.toString() : '');
+    setCustomServiceName(appt.custom_service_name || (appt.service_detail ? appt.service_detail.name_ru : ''));
+    setCustomPrice(appt.custom_price?.toString() || (appt.service_detail ? appt.service_detail.price : ''));
     
     const d = new Date(appt.start_time);
     setBookingDate(d.toISOString().split('T')[0]);
@@ -210,7 +213,9 @@ export default function CalendarPage() {
     const payload = {
       patient: parseInt(patientId),
       doctor: parseInt(doctorId),
-      service: serviceId ? parseInt(serviceId) : null,
+      service: null, // removing static service ID
+      custom_service_name: customServiceName || null,
+      custom_price: customPrice ? parseFloat(customPrice) : null,
       start_time: startDateTime.toISOString(),
       end_time: endDateTime.toISOString(),
       status: status,
@@ -459,24 +464,34 @@ export default function CalendarPage() {
                   </select>
                 </div>
 
-                {/* Service Selection */}
-                <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest flex items-center gap-1">
-                    <Stethoscope className="h-3.5 w-3.5 text-blue-500" />
-                    <span>Услуга</span>
-                  </label>
-                  <select
-                    value={serviceId}
-                    onChange={(e) => setServiceId(e.target.value)}
-                    className="w-full h-11 px-4 rounded-xl border border-slate-200 outline-none text-sm text-slate-800"
-                  >
-                    <option value="">Выберите услугу (по желанию)</option>
-                    {services.map(s => (
-                      <option key={s.id} value={s.id}>
-                        {s.name_ru}
-                      </option>
-                    ))}
-                  </select>
+                {/* Custom Service Inputs */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest flex items-center gap-1">
+                      <Stethoscope className="h-3.5 w-3.5 text-blue-500" />
+                      <span>Оказанная услуга</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={customServiceName}
+                      onChange={(e) => setCustomServiceName(e.target.value)}
+                      placeholder="Напр. Лечение пульпита"
+                      className="w-full h-11 px-4 rounded-xl border border-slate-200 outline-none text-sm text-slate-800"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest flex items-center gap-1">
+                      <Stethoscope className="h-3.5 w-3.5 text-blue-500" />
+                      <span>Стоимость (сум)</span>
+                    </label>
+                    <input
+                      type="number"
+                      value={customPrice}
+                      onChange={(e) => setCustomPrice(e.target.value)}
+                      placeholder="Напр. 450000"
+                      className="w-full h-11 px-4 rounded-xl border border-slate-200 outline-none text-sm text-slate-800 font-bold"
+                    />
+                  </div>
                 </div>
 
                 {/* Date & Time Grid */}

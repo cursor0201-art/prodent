@@ -338,8 +338,10 @@ class AppointmentViewSet(viewsets.ModelViewSet):
             
             cancellation_rate = (canceled_count / total_count * 100) if total_count > 0 else 0
 
+            from django.db.models.functions import Coalesce
+
             total_revenue = qs.filter(status='COMPLETED').aggregate(
-                total=Sum('service__price')
+                total=Sum(Coalesce('custom_price', 'service__price', output_field=models.DecimalField()))
             )['total'] or 0
 
             kpi_bonus = float(total_revenue) * float(doctor.kpi_percentage) / 100

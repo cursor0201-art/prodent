@@ -37,7 +37,9 @@ class Appointment(models.Model):
 
     patient = models.ForeignKey('patients.Patient', on_delete=models.CASCADE, related_name='appointments')
     doctor = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='doctor_appointments', limit_choices_to={'role': 'DOCTOR'})
-    service = models.ForeignKey(Service, on_delete=models.SET_NULL, null=True)
+    service = models.ForeignKey(Service, on_delete=models.SET_NULL, null=True, blank=True)
+    custom_service_name = models.CharField(max_length=300, blank=True, null=True)
+    custom_price = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
     start_time = models.DateTimeField(db_index=True)
     end_time = models.DateTimeField()
     status = models.CharField(max_length=20, choices=Status.choices, default=Status.BOOKED, db_index=True)
