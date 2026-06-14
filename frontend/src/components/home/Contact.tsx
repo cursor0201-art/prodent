@@ -256,7 +256,7 @@ export const Contact = () => {
                 {language === 'ru' ? 'Позвонить' : 'Qo\'ng\'iroq'}
               </a>
               <a 
-                href="https://t.me/prodent_stomatologiya" 
+                href="https://t.me/Dr_farrukh1" 
                 target="_blank"
                 className="flex items-center gap-2 bg-blue-500 text-white px-5 py-2.5 rounded-full text-sm font-bold border border-blue-400 hover:bg-blue-400 transition-all"
               >

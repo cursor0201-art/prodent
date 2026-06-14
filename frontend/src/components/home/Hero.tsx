@@ -124,7 +124,7 @@ export const Hero = () => {
                 +998 (99) 982-22-92
               </a>
               <div className="mt-2 flex gap-2">
-                <a href="https://t.me/prodent_stomatologiya" target="_blank" className="text-xs text-blue-500 hover:underline">Telegram</a>
+                <a href="https://t.me/Dr_farrukh1" target="_blank" className="text-xs text-blue-500 hover:underline">Telegram</a>
               </div>
             </div>
             
