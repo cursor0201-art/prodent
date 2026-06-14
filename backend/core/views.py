@@ -51,6 +51,13 @@ def telegram_webhook(request):
                     except Exception as e:
                         logger.error(f"Error processing /start command: {e}")
                         send_telegram_message("❌ Ошибка привязки аккаунта. Возможно, пациент не найден.", to_chat_id=chat_id)
+                elif text == '/start':
+                    welcome_msg = (
+                        "👋 Добро пожаловать в бот Prodent Stomatologiya!\n\n"
+                        "Я — ваш виртуальный помощник. Я буду отправлять вам напоминания о предстоящих визитах к врачу.\n\n"
+                        "🔗 Чтобы получать уведомления, пожалуйста, запишитесь на приём через наш сайт и нажмите кнопку «Подключить напоминания» на экране успеха."
+                    )
+                    send_telegram_message(welcome_msg, to_chat_id=chat_id)
             
             # Handle callback queries (inline buttons)
             elif 'callback_query' in update:
