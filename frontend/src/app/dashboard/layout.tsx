@@ -84,7 +84,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <div className="space-y-8">
           <div className="px-2">
             <Link href="/dashboard" className="text-2xl font-bold tracking-tight text-blue-600">
-              PRODENT<span className="text-slate-800">CRM</span>
+              SHARK<span className="text-slate-800">DENTA</span>
             </Link>
           </div>
 

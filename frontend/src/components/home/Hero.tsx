@@ -106,7 +106,7 @@ export const Hero = () => {
               <div className="w-full aspect-[4/3] relative">
                 <Image 
                   src="/clinic-exterior.jpg" 
-                  alt="Prodent Stomatologiya Clinic Exterior" 
+                  alt="SharkDENTA Clinic Exterior" 
                   className="object-cover w-full h-full"
                   width={1200}
                   height={900}

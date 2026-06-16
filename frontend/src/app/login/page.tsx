@@ -87,7 +87,7 @@ export default function LoginPage() {
       >
         <div className="text-center mb-8">
           <h2 className="text-3xl font-extrabold text-blue-600 tracking-tight mb-2">
-            PRODENT<span className="text-slate-800">CRM</span>
+            SHARK<span className="text-slate-800">DENTA</span>
           </h2>
           <p className="text-slate-400 font-bold text-xs uppercase tracking-widest">Панель управления клиники</p>
         </div>
@@ -140,7 +140,7 @@ export default function LoginPage() {
         </form>
 
         <p className="text-center mt-8 text-[11px] text-slate-400 font-bold leading-normal">
-          Доступ только для авторизованных сотрудников клиники Prodent Stomatologiya.
+          Доступ только для авторизованных сотрудников клиники SharkDENTA.
         </p>
       </motion.div>
     </div>

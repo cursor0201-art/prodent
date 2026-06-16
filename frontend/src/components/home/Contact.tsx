@@ -241,7 +241,7 @@ export const Contact = () => {
                   </div>
                   <div>
                     <p className="text-xs text-blue-200 uppercase tracking-widest font-bold mb-1">Email</p>
-                    <a href="mailto:info@prodent.uz" className="text-base font-semibold hover:underline">info@prodent.uz</a>
+                    <a href="mailto:info@sharkdenta.uz" className="text-base font-semibold hover:underline">info@sharkdenta.uz</a>
                   </div>
                 </div>
               </div>
