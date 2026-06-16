@@ -20,7 +20,7 @@ export const Navbar = () => {
         <div className="flex justify-between h-20 items-center">
           <div className="flex items-center">
             <Link href="/" className="text-2xl font-bold tracking-tight text-blue-600">
-              PRODENT<span className="text-slate-800">STOM</span>
+              SHARK<span className="text-slate-800">DENTA</span>
             </Link>
           </div>
           

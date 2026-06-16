@@ -2,14 +2,14 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Prodent Stomatologiya | Современная Стоматология в Ташкенте",
+  title: "SharkDENTA | Современная Стоматология в Ташкенте",
   description: "Профессиональное лечение зубов, имплантация, виниры и ортодонтия в Ташкенте. Современное оборудование и опытные врачи. Запишитесь на прием онлайн!",
-  keywords: ["стоматология ташкент", "лечение зубов", "имплантация зубов", "виниры ташкент", "детская стоматология"],
+  keywords: ["стоматология ташкент", "лечение зубов", "имплантация зубов", "виниры ташкент", "детская стоматология", "SharkDENTA", "Шаркдента"],
   openGraph: {
-    title: "Prodent Stomatologiya - Ваша идеальная улыбка",
+    title: "SharkDENTA - Ваша идеальная улыбка",
     description: "Современная стоматологическая клиника с индивидуальным подходом.",
-    url: "https://prodent.uz",
-    siteName: "Prodent Stomatologiya",
+    url: "https://sharkdenta.uz",
+    siteName: "SharkDENTA",
     images: [
       {
         url: "/og-image.jpg",
