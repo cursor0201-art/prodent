@@ -24,5 +24,5 @@ RUN python manage.py collectstatic --noinput
 
 EXPOSE 8000
 
-# Запуск Redis, миграций, Celery и Gunicorn
-CMD ["sh", "-c", "redis-server --daemonize yes && python manage.py migrate && python manage.py seed_data && celery -A core worker --loglevel=info & celery -A core beat --loglevel=info & gunicorn core.wsgi:application --bind 0.0.0.0:8000 --workers 3"]
+# Запуск Redis, миграций, Celery и Gunicorn с жестким ограничением потоков (чтобы не убивало по памяти OOM)
+CMD ["sh", "-c", "redis-server --daemonize yes && python manage.py migrate && python manage.py seed_data && celery -A core worker --loglevel=info --concurrency=1 & celery -A core beat --loglevel=info & gunicorn core.wsgi:application --bind 0.0.0.0:8000 --workers 2"]
