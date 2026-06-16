@@ -235,7 +235,8 @@ class AppointmentViewSet(viewsets.ModelViewSet):
             
             if not is_booked:
                 # Skip past slots if the date is today
-                if target_date == datetime.now().date() and current.time() < datetime.now().time():
+                now_tashkent = timezone.localtime()
+                if target_date == now_tashkent.date() and current.time() < now_tashkent.time():
                     pass
                 else:
                     slots.append(current.strftime('%H:%M'))
