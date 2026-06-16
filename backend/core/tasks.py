@@ -72,14 +72,16 @@ def send_appointment_reminders():
         should_send = False
         reminder_text = ""
         
-        # Проверяем диапазоны в 1 минуту (т.к. cron работает каждую минуту)
-        if 59 <= time_diff < 60:
+        minutes_left = round(time_diff)
+        
+        # Проверяем округленное количество минут (т.к. cron работает каждую минуту, он попадет в это значение ровно 1 раз)
+        if minutes_left == 60:
             should_send = True
             reminder_text = "ровно через 1 час"
-        elif 29 <= time_diff < 30:
+        elif minutes_left == 30:
             should_send = True
             reminder_text = "через 30 минут"
-        elif 9 <= time_diff < 10:
+        elif minutes_left == 10:
             should_send = True
             reminder_text = "через 10 минут"
             
