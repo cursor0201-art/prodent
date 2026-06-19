@@ -181,6 +181,8 @@ export default function PatientsPage() {
     const token = localStorage.getItem('access_token');
     const headers = { Authorization: `Bearer ${token}` };
 
+    const existingRecord = selectedPatient.dental_records?.find(r => r.tooth_number === selectedTooth);
+
     const payload = {
       patient: selectedPatient.id,
       tooth_number: selectedTooth,
@@ -189,7 +191,11 @@ export default function PatientsPage() {
     };
 
     try {
-      await axios.post(`${API_URL}/api/patients/dental-records/`, payload, { headers });
+      if (existingRecord) {
+        await axios.put(`${API_URL}/api/patients/records/${existingRecord.id}/`, payload, { headers });
+      } else {
+        await axios.post(`${API_URL}/api/patients/records/`, payload, { headers });
+      }
       setIsToothModalOpen(false);
       loadPatientDetail(selectedPatient.id);
     } catch (err) {
