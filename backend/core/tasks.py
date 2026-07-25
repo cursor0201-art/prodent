@@ -96,16 +96,8 @@ def send_appointment_reminders():
         # Уведомления через Eskiz SMS (ровно за 1 час)
         if minutes_left == 60 and appt.patient.phone:
             from core.services.eskiz import eskiz_service
-            from core.services.sms_templates import get_reminder_message
-            
-            local_time = timezone.localtime(appt.start_time)
-            msg = get_reminder_message(
-                patient=appt.patient,
-                date=local_time.strftime('%d.%m.%Y'),
-                time_str=local_time.strftime('%H:%M')
-            )
-            eskiz_service.send_sms(appt.patient.phone, msg)
-            sent_count += 1
+            if eskiz_service.send_reminder_sms(appt):
+                sent_count += 1
             
     return f"Отправлено SMS напоминаний: {sent_count}"
 
@@ -113,20 +105,10 @@ def send_appointment_reminders():
 def send_registration_sms_task(appointment_id):
     from appointments.models import Appointment
     from core.services.eskiz import eskiz_service
-    from core.services.sms_templates import get_registration_message
     
     try:
         appt = Appointment.objects.get(id=appointment_id)
-        if not appt.patient.phone:
-            return "No phone number"
-            
-        local_time = timezone.localtime(appt.start_time)
-        msg = get_registration_message(
-            patient=appt.patient,
-            date=local_time.strftime('%d.%m.%Y'),
-            time_str=local_time.strftime('%H:%M')
-        )
-        success = eskiz_service.send_sms(appt.patient.phone, msg)
+        success = eskiz_service.send_registration_sms(appt)
         return "Registration SMS sent" if success else "Failed to send Registration SMS"
     except Appointment.DoesNotExist:
         return "Appointment not found"
@@ -135,7 +117,7 @@ def send_registration_sms_task(appointment_id):
 def check_and_send_birthday_sms_task():
     from patients.models import Patient
     from core.services.eskiz import eskiz_service
-    from core.services.sms_templates import get_birthday_message
+    from django.utils import timezone
     
     today = timezone.localtime().date()
     # Ищем пациентов у которых сегодня день рождения (игнорируя год)
@@ -146,8 +128,7 @@ def check_and_send_birthday_sms_task():
     
     sent = 0
     for patient in birthday_patients:
-        msg = get_birthday_message(patient)
-        if eskiz_service.send_sms(patient.phone, msg):
+        if eskiz_service.send_birthday_sms(patient):
             sent += 1
             
     return f"Отправлено {sent} поздравлений с днем рождения."
