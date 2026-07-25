@@ -15,6 +15,7 @@ class Patient(models.Model):
     allergy_info = models.TextField(blank=True, null=True)
     balance = models.DecimalField(max_digits=12, decimal_places=2, default=0.00) # долг или депозит
     telegram_chat_id = models.CharField(max_length=50, blank=True, null=True, unique=True) # Идентификатор чата в Telegram
+    language = models.CharField(max_length=2, choices=[('ru', 'Русский'), ('uz', "O'zbek")], default='ru')
     notes = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 

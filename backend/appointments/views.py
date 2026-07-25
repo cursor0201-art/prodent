@@ -105,9 +105,13 @@ class AppointmentViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         appointment = serializer.save()
         
+        # Запускаем отправку SMS после коммита в БД
+        from django.db import transaction
+        from core.tasks import send_registration_sms_task, send_telegram_message_async
+        transaction.on_commit(lambda: send_registration_sms_task.delay(appointment.id))
+        
         # Send Telegram notification (non-blocking: failures here should NOT prevent appointment creation)
         try:
-            from core.tasks import send_telegram_message_async
             service_name = appointment.service.name_ru if appointment.service else 'Консультация'
             message = (
                 f"📅 <b>Новая запись на прием!</b>\n\n"
@@ -129,7 +133,7 @@ class AppointmentViewSet(viewsets.ModelViewSet):
             if appointment.patient.telegram_chat_id:
                 patient_message = (
                     f"Здравствуйте, {appointment.patient.first_name}! 👋\n\n"
-                    f"Вы успешно записаны на прием в клинику <b>Prodent Stomatologiya</b>:\n"
+                    f"Вы успешно записаны на прием в клинику <b>Shark Denta</b>:\n"
                     f"👨‍⚕️ Врач: <b>{appointment.doctor}</b>\n"
                     f"🩺 Услуга: {service_name}\n"
                     f"📅 Дата и время: <b>{appointment.start_time.strftime('%d.%m.%Y в %H:%M')}</b>\n\n"

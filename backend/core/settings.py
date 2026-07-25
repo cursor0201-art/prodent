@@ -206,5 +206,9 @@ CELERY_BEAT_SCHEDULE = {
         'task': 'core.tasks.check_material_expirations',
         'schedule': crontab(minute=0, hour=9), # Каждый день в 09:00
     },
+    'send-birthday-sms': {
+        'task': 'core.tasks.check_and_send_birthday_sms_task',
+        'schedule': crontab(minute=0, hour=10), # Каждый день в 10:00
+    },
 }
 CELERY_TIMEZONE = TIME_ZONE
