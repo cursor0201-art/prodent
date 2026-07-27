@@ -34,12 +34,7 @@ SECRET_KEY = env('SECRET_KEY', default='dummy-secret-key-for-build')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env('DEBUG', default=False)
 
-ALLOWED_HOSTS = env('ALLOWED_HOSTS', default=[
-    'localhost',
-    '127.0.0.1',
-    'prodent-hfae.onrender.com',
-    '.koyeb.app',
-])
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -159,16 +154,7 @@ SIMPLE_JWT = {
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
 }
 
-CORS_ALLOWED_ORIGINS = [
-    'https://prodent-7kc.pages.dev',
-    'https://0e8d74f1.prodent-7kc.pages.dev',
-    'http://localhost:3000',
-    'http://localhost:8000',
-    'https://prodent-hfae.onrender.com',
-    'https://sharkdenta.uz',
-    'https://www.sharkdenta.uz'
-]
-
+CORS_ALLOW_ALL_ORIGINS = True
 CSRF_TRUSTED_ORIGINS = [
     'https://prodent-7kc.pages.dev',
     'https://0e8d74f1.prodent-7kc.pages.dev',
@@ -176,7 +162,8 @@ CSRF_TRUSTED_ORIGINS = [
     'http://localhost:8000',
     'https://prodent-hfae.onrender.com',
     'https://sharkdenta.uz',
-    'https://www.sharkdenta.uz'
+    'https://www.sharkdenta.uz',
+    'https://bare-lynx-bave-hub-129c3927.koyeb.app',
 ]
 
 LANGUAGE_CODE = 'ru-ru'
