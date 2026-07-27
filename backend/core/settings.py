@@ -34,11 +34,12 @@ SECRET_KEY = env('SECRET_KEY', default='dummy-secret-key-for-build')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env('DEBUG', default=False)
 
-ALLOWED_HOSTS = [
+ALLOWED_HOSTS = env('ALLOWED_HOSTS', default=[
     'localhost',
     '127.0.0.1',
-    'prodent-hfae.onrender.com'
-]
+    'prodent-hfae.onrender.com',
+    '.koyeb.app',
+])
 
 
 # Application definition
