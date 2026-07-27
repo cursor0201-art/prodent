@@ -11,6 +11,7 @@ class EskizSMSService:
     def __init__(self):
         self.email = os.environ.get('ESKIZ_EMAIL')
         self.password = os.environ.get('ESKIZ_SECRET_KEY')
+        self.sender = os.environ.get('ESKIZ_SENDER', '4546')
         self.base_url = os.environ.get('ESKIZ_BASE_URL', 'https://notify.eskiz.uz/api')
         self.cache_key = 'eskiz_sms_token'
 
@@ -58,32 +59,34 @@ class EskizSMSService:
             return token
         return self.refresh_token()
 
-    def send_sms(self, phone: str, text: str) -> bool:
+    def send_sms(self, phone: str, text: str, sms_type: str = 'general', patient=None) -> bool:
         """
-        Универсальный метод отправки SMS.
+        Универсальный метод отправки SMS с сохранением в SMSLog.
         """
         clean_phone = ''.join(filter(str.isdigit, str(phone)))
         if not clean_phone:
             logger.error("Invalid phone number provided.")
+            self._log_sms(patient=patient, phone=phone, sms_type=sms_type, message=text, status='failed', response_data={'error': 'Invalid phone number'})
             return False
             
         token = self._get_token()
         if not token:
             logger.error(f"Cannot send SMS to {clean_phone}: No auth token.")
+            self._log_sms(patient=patient, phone=clean_phone, sms_type=sms_type, message=text, status='failed', response_data={'error': 'No auth token'})
             return False
 
-        success = self._send_request(clean_phone, text, token)
+        success = self._send_request(clean_phone, text, token, sms_type=sms_type, patient=patient)
         
         # Если 401 Unauthorized, обновляем токен и пробуем снова
         if not success:
             logger.info("Retrying SMS send with new token...")
             new_token = self.refresh_token()
             if new_token:
-                success = self._send_request(clean_phone, text, new_token)
+                success = self._send_request(clean_phone, text, new_token, sms_type=sms_type, patient=patient)
                 
         return success
 
-    def _send_request(self, phone: str, message: str, token: str) -> bool:
+    def _send_request(self, phone: str, message: str, token: str, sms_type: str = 'general', patient=None) -> bool:
         url = f"{self.base_url}/message/sms/send"
         headers = {
             'Authorization': f'Bearer {token}'
@@ -91,7 +94,7 @@ class EskizSMSService:
         payload = {
             'mobile_phone': phone,
             'message': message,
-            'from': '4546',
+            'from': self.sender,
         }
 
         try:
@@ -100,15 +103,57 @@ class EskizSMSService:
             if response.status_code == 401:
                 return False
                 
+            response_data = response.json() if response.content else {}
+            eskiz_id = response_data.get('id') or response_data.get('data', {}).get('id')
+            status_str = 'success' if response.ok else 'failed'
+
+            self._log_sms(
+                patient=patient,
+                phone=phone,
+                sms_type=sms_type,
+                message=message,
+                status=status_str,
+                eskiz_message_id=str(eskiz_id) if eskiz_id else None,
+                response_data=response_data
+            )
+
             response.raise_for_status()
-            logger.info(f"Successfully sent SMS to {phone}. Response: {response.json()}")
+            logger.info(f"Successfully sent SMS to {phone}. Response: {response_data}")
             return True
         except requests.exceptions.RequestException as e:
             code = e.response.status_code if e.response is not None else None
-            logger.error(f"Failed to send SMS to {phone}. Code: {code}. Error: {e}")
+            response_text = e.response.text if e.response is not None else "No response body"
+            resp_json = e.response.json() if (e.response is not None and e.response.content) else {'error': str(e)}
+            
+            if code != 401:
+                self._log_sms(
+                    patient=patient,
+                    phone=phone,
+                    sms_type=sms_type,
+                    message=message,
+                    status='failed',
+                    response_data=resp_json
+                )
+            
+            logger.error(f"Failed to send SMS to {phone}. Code: {code}. Response: {response_text}. Error: {e}")
             if code == 401:
                 return False
             return False
+
+    def _log_sms(self, patient, phone, sms_type, message, status, eskiz_message_id=None, response_data=None):
+        try:
+            from patients.models import SMSLog
+            SMSLog.objects.create(
+                patient=patient,
+                phone=phone,
+                sms_type=sms_type,
+                message=message,
+                status=status,
+                eskiz_message_id=eskiz_message_id,
+                response_data=response_data
+            )
+        except Exception as log_err:
+            logger.error(f"Failed to create SMSLog: {log_err}")
 
     def send_registration_sms(self, appointment) -> bool:
         """
@@ -124,7 +169,7 @@ class EskizSMSService:
             date=local_time.strftime('%d.%m.%Y'),
             time_str=local_time.strftime('%H:%M')
         )
-        return self.send_sms(patient.phone, msg)
+        return self.send_sms(patient.phone, msg, sms_type='registration', patient=patient)
 
     def send_reminder_sms(self, appointment) -> bool:
         """
@@ -146,9 +191,8 @@ class EskizSMSService:
             date=local_time.strftime('%d.%m.%Y'),
             time_str=local_time.strftime('%H:%M')
         )
-        success = self.send_sms(patient.phone, msg)
+        success = self.send_sms(patient.phone, msg, sms_type='reminder', patient=patient)
         if success:
-            # Отмечаем, что напоминание отправлено (храним долго, чтобы не дублировать)
             cache.set(duplicate_key, True, timeout=60 * 60 * 24 * 7)
         return success
 
@@ -159,7 +203,6 @@ class EskizSMSService:
         if not patient.phone:
             return False
             
-        # Защита от дублей (одна отправка в год)
         current_year = timezone.now().year
         duplicate_key = f"birthday_sms_sent_{patient.id}_{current_year}"
         if cache.get(duplicate_key):
@@ -167,10 +210,11 @@ class EskizSMSService:
             return False
 
         msg = get_birthday_message(patient)
-        success = self.send_sms(patient.phone, msg)
+        success = self.send_sms(patient.phone, msg, sms_type='birthday', patient=patient)
         if success:
             cache.set(duplicate_key, True, timeout=60 * 60 * 24 * 365)
         return success
 
 # Экземпляр сервиса
 eskiz_service = EskizSMSService()
+

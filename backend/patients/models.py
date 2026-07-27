@@ -44,3 +44,32 @@ class PatientFile(models.Model):
     def __str__(self):
         return f"{self.title or 'Файл'} для {self.patient}"
 
+
+class SMSLog(models.Model):
+    class SMSType(models.TextChoices):
+        REGISTRATION = 'registration', 'Подтверждение записи'
+        REMINDER = 'reminder', 'Напоминание о приеме'
+        BIRTHDAY = 'birthday', 'Поздравление с днем рождения'
+        GENERAL = 'general', 'Общее сообщение'
+
+    class Status(models.TextChoices):
+        SUCCESS = 'success', 'Успешно'
+        FAILED = 'failed', 'Ошибка'
+        WAITING = 'waiting', 'В обработке'
+
+    patient = models.ForeignKey(Patient, on_delete=models.SET_NULL, null=True, blank=True, related_name='sms_logs')
+    phone = models.CharField(max_length=20)
+    sms_type = models.CharField(max_length=20, choices=SMSType.choices, default=SMSType.GENERAL)
+    message = models.TextField()
+    status = models.CharField(max_length=20, choices=Status.choices, default=Status.WAITING)
+    eskiz_message_id = models.CharField(max_length=100, blank=True, null=True)
+    response_data = models.JSONField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = 'Журнал SMS'
+        verbose_name_plural = 'Журнал SMS'
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"SMS [{self.sms_type}] -> {self.phone} ({self.status})"

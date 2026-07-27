@@ -1,134 +1,115 @@
 from django.utils import formats
 
-def get_registration_message(patient, date, time_str, address="г. Ташкент, Юнусабад 7 квартал 40 дом") -> str:
+def get_registration_message(patient, date, time_str, address="г. Ташкент, Юнусабадский район.") -> str:
     lang = getattr(patient, 'language', 'ru')
     
+    name = f"{patient.first_name} {patient.last_name}".strip()
+    
     if lang == 'uz':
+        # ID 81265
+        address_uz = "Toshkent sh., Yunusobod tumani." if address == "г. Ташкент, Юнусабадский район." else address
         return f"""🦷 Shark Denta
 
-Assalomu alaykum,
-{patient.first_name} {patient.last_name}!
+Assalomu alaykum, {name}!
 
-Shark Denta stomatologiya klinikasini tanlaganingiz uchun rahmat.
+Shark Denta klinikasini tanlaganingiz uchun rahmat.
 
-Siz {date} kuni
-{time_str} ga muvaffaqiyatli ro'yxatdan o'tdingiz.
+Siz {date} kuni soat {time_str} ga muvaffaqiyatli yozildingiz.
 
-📍 Manzil:
-{address}
+📍 Manzil: {address_uz}
 
-Agar rejalaringiz o'zgarsa,
-iltimos bizga oldindan xabar bering.
+Savollar bo'lsa, biz bilan bog'laning.
 
 Hurmat bilan,
 Shark Denta"""
     
-    # Default RU
+    # ID 81325
     return f"""🦷 Shark Denta
 
-Здравствуйте,
-{patient.first_name} {patient.last_name}!
+Здравствуйте, {name}!
 
-Благодарим за обращение
-в стоматологическую клинику Shark Denta.
+Спасибо, что выбрали стоматологическую клинику Shark Denta.
 
-Вы успешно записаны
-на {date}
-в {time_str}.
+Вы успешно записаны на {date} в {time_str}.
 
-📍 Адрес:
-{address}
+📍 Адрес: {address}
 
-Если у Вас изменятся планы,
-пожалуйста сообщите нам заранее.
+Если возникнут вопросы, свяжитесь с нами.
 
 С уважением,
-Shark Denta"""
+Shark Denta."""
 
-def get_reminder_message(patient, date, time_str, address="г. Ташкент, Юнусабад 7 квартал 40 дом") -> str:
+def get_reminder_message(patient, date, time_str, address="г. Ташкент, Юнусабадский район.") -> str:
     lang = getattr(patient, 'language', 'ru')
     
+    name = f"{patient.first_name} {patient.last_name}".strip()
+    
     if lang == 'uz':
+        # ID 81328
+        address_uz = "Toshkent sh., Yunusobod tumani." if address == "г. Ташкент, Юнусабадский район." else address
         return f"""🦷 Shark Denta
 
-Assalomu alaykum,
-{patient.first_name} {patient.last_name}!
+Assalomu alaykum, {name}!
 
-Qabulingiz boshlanishiga
-1 soat qoldi.
+Sizning qabulingiz boshlanishiga 1 soat qoldi.
 
-📅 Sana:
-{date}
+📅 {date}
+🕐 {time_str}
 
-🕒 Vaqt:
-{time_str}
+📍 {address_uz}
 
-📍 Manzil:
-{address}
-
-10–15 daqiqa oldin kelishingizni tavsiya qilamiz.
+Sizni kutamiz!
 
 Hurmat bilan,
 Shark Denta"""
 
-    # Default RU
+    # ID 81327
     return f"""🦷 Shark Denta
 
-Здравствуйте,
-{patient.first_name} {patient.last_name}!
+Здравствуйте, {name}!
 
-До Вашего приема
-остался 1 час.
+Напоминаем, что до вашего приема остался 1 час.
 
-📅 Дата:
-{date}
+📅 {date}
+🕐 {time_str}
 
-🕒 Время:
-{time_str}
+📍 {address}
 
-📍 Адрес:
-{address}
-
-Просим прийти за
-10–15 минут до приема.
+Ждем Вас!
 
 С уважением,
-Shark Denta"""
+Shark Denta."""
 
 def get_birthday_message(patient) -> str:
     lang = getattr(patient, 'language', 'ru')
     
+    name = f"{patient.first_name} {patient.last_name}".strip()
+    
     if lang == 'uz':
+        # ID 81267
         return f"""🎉 Shark Denta
 
-Hurmatli
-{patient.first_name} {patient.last_name}!
+Assalomu alaykum, {name}!
 
 Tug'ilgan kuningiz bilan tabriklaymiz!
 
-Sizga mustahkam sog'liq
-va yorqin tabassum tilaymiz.
+Sizga sog'liq va baxt tilaymiz.
 
-🎁 Sovg'a sifatida
-bepul shifokor konsultatsiyasi.
+🎁 Sovg'a sifatida bepul shifokor konsultatsiyasi taqdim etiladi.
 
 Hurmat bilan,
 Shark Denta"""
 
-    # Default RU
+    # ID 81326
     return f"""🎉 Shark Denta
 
-Уважаемый(ая)
-{patient.first_name} {patient.last_name}!
+Здравствуйте, {name}!
 
-Поздравляем Вас
-с Днем рождения!
+Поздравляем Вас с Днем рождения!
 
-Желаем крепкого здоровья
-и красивой улыбки.
+Желаем крепкого здоровья, счастья и красивой улыбки.
 
-🎁 В подарок
-бесплатная консультация врача.
+🎁 В подарок — бесплатная консультация врача.
 
 С уважением,
-Shark Denta"""
+Shark Denta."""
