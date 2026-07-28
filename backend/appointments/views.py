@@ -98,9 +98,11 @@ class AppointmentViewSet(viewsets.ModelViewSet):
             
         serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
+        sms_status = self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        response_data = serializer.data
+        response_data['sms_status'] = sms_status
+        return Response(response_data, status=status.HTTP_201_CREATED, headers=headers)
 
     def perform_create(self, serializer):
         appointment = serializer.save()
@@ -151,6 +153,8 @@ class AppointmentViewSet(viewsets.ModelViewSet):
                 send_telegram_message_async(patient_message, to_chat_id=appointment.patient.telegram_chat_id)
         except Exception as e:
             logger.warning(f"Telegram notification failed (Celery/Redis may not be running): {e}")
+
+        return sms_status
 
     def perform_update(self, serializer):
         old_appointment = self.get_object()
