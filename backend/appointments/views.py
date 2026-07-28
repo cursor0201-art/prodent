@@ -110,9 +110,9 @@ class AppointmentViewSet(viewsets.ModelViewSet):
         from core.tasks import send_registration_sms_task, send_telegram_message_async
         def safe_send_sms():
             try:
-                send_registration_sms_task.delay(appointment.id)
+                send_registration_sms_task(appointment.id)
             except Exception as e:
-                logger.warning(f"SMS notification failed (Celery/Redis may not be running): {e}")
+                logger.warning(f"SMS notification failed: {e}")
                 
         transaction.on_commit(safe_send_sms)        
         # Send Telegram notification (non-blocking: failures here should NOT prevent appointment creation)
@@ -132,7 +132,7 @@ class AppointmentViewSet(viewsets.ModelViewSet):
                     {"text": "📞 Перезвонить", "callback_data": f"call_{appointment.id}"}
                 ]]
             }
-            send_telegram_message_async.delay(message, reply_markup=reply_markup)
+            send_telegram_message_async(message, reply_markup=reply_markup)
 
             # Direct reminder notification to the patient if chat_id exists
             if appointment.patient.telegram_chat_id:
@@ -144,7 +144,7 @@ class AppointmentViewSet(viewsets.ModelViewSet):
                     f"📅 Дата и время: <b>{appointment.start_time.strftime('%d.%m.%Y в %H:%M')}</b>\n\n"
                     f"Ждем вас! Пожалуйста, приходите за 10 минут до начала приёма."
                 )
-                send_telegram_message_async.delay(patient_message, to_chat_id=appointment.patient.telegram_chat_id)
+                send_telegram_message_async(patient_message, to_chat_id=appointment.patient.telegram_chat_id)
         except Exception as e:
             logger.warning(f"Telegram notification failed (Celery/Redis may not be running): {e}")
 
@@ -166,7 +166,7 @@ class AppointmentViewSet(viewsets.ModelViewSet):
                 f"Старый статус: {old_status}\n"
                 f"Новый статус: <b>{appointment.get_status_display()}</b>"
             )
-            send_telegram_message_async.delay(message)
+            send_telegram_message_async(message)
 
         # Notify patient directly if chat_id exists and status or time changed
         if appointment.patient.telegram_chat_id:
@@ -190,7 +190,7 @@ class AppointmentViewSet(viewsets.ModelViewSet):
                     f"📅 Время: <b>{appointment.start_time.strftime('%d.%m.%Y в %H:%M')}</b>\n"
                     f"📌 Статус: <b>{status_label}</b>"
                 )
-                send_telegram_message_async.delay(patient_msg, to_chat_id=appointment.patient.telegram_chat_id)
+                send_telegram_message_async(patient_msg, to_chat_id=appointment.patient.telegram_chat_id)
 
     # ─── Booking Endpoints ────────────────────────────────────────
 
