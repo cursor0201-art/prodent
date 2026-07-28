@@ -17,7 +17,7 @@ interface Doctor {
   working_hours: Record<string, string[]> | null;
 }
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://prodent-hfae.onrender.com';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://bare-lynx-bave-hub-129c3927.koyeb.app';
 
 const DoctorAvatar = ({ avatar, firstName, lastName, doctorId }: { avatar: string | null; firstName: string; lastName: string; doctorId: number }) => {
   const [src, setSrc] = useState<string | null>(null);

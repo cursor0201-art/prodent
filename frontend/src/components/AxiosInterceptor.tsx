@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://prodent-hfae.onrender.com';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://bare-lynx-bave-hub-129c3927.koyeb.app';
 
 export function AxiosInterceptor({ children }: { children: React.ReactNode }) {
   const router = useRouter();
