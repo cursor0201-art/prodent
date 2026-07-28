@@ -108,8 +108,13 @@ class AppointmentViewSet(viewsets.ModelViewSet):
         # Запускаем отправку SMS после коммита в БД
         from django.db import transaction
         from core.tasks import send_registration_sms_task, send_telegram_message_async
-        transaction.on_commit(lambda: send_registration_sms_task.delay(appointment.id))
-        
+        def safe_send_sms():
+            try:
+                send_registration_sms_task.delay(appointment.id)
+            except Exception as e:
+                logger.warning(f"SMS notification failed (Celery/Redis may not be running): {e}")
+                
+        transaction.on_commit(safe_send_sms)        
         # Send Telegram notification (non-blocking: failures here should NOT prevent appointment creation)
         try:
             service_name = appointment.service.name_ru if appointment.service else 'Консультация'
