@@ -110,11 +110,15 @@ class AppointmentViewSet(viewsets.ModelViewSet):
         from core.tasks import send_registration_sms_task, send_telegram_message_async
         def safe_send_sms():
             try:
-                send_registration_sms_task(appointment.id)
+                result = send_registration_sms_task(appointment.id)
+                logger.info(f"SMS Task Result: {result}")
+                return result
             except Exception as e:
                 logger.warning(f"SMS notification failed: {e}")
+                return str(e)
                 
-        transaction.on_commit(safe_send_sms)        
+        sms_status = safe_send_sms()
+        
         # Send Telegram notification (non-blocking: failures here should NOT prevent appointment creation)
         try:
             service_name = appointment.service.name_ru if appointment.service else 'Консультация'
