@@ -105,7 +105,10 @@ class EskizSMSService:
                 
             response_data = response.json() if response.content else {}
             eskiz_id = response_data.get('id') or response_data.get('data', {}).get('id')
-            status_str = 'success' if response.ok else 'failed'
+            
+            # Since Eskiz returns 'waiting' synchronously, we log it as waiting.
+            # Webhook will update it to success (delivered) later.
+            status_str = 'waiting' if response.ok else 'failed'
 
             self._log_sms(
                 patient=patient,

@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import PatientViewSet, DentalRecordViewSet, PatientFileViewSet
+from .views import PatientViewSet, DentalRecordViewSet, PatientFileViewSet, EskizWebhookView
 
 router = DefaultRouter()
 router.register(r'patients', PatientViewSet)
@@ -8,5 +8,6 @@ router.register(r'records', DentalRecordViewSet)
 router.register(r'files', PatientFileViewSet)
 
 urlpatterns = [
+    path('sms/callback/', EskizWebhookView.as_view(), name='sms-webhook'),
     path('', include(router.urls)),
 ]
