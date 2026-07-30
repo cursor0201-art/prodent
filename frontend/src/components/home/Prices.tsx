@@ -71,13 +71,12 @@ export const Prices = () => {
         <div className="max-w-3xl mx-auto bg-white rounded-3xl border border-slate-100 shadow-xl overflow-hidden">
           <div className="px-8 py-6 bg-slate-900 text-white flex justify-between items-center">
             <span className="font-extrabold text-lg">{t.prices.service}</span>
-            <span className="font-extrabold text-lg">{t.prices.price}</span>
           </div>
 
           <div className="divide-y divide-slate-100">
             {services.map((item) => (
               <div key={item.id} className="px-8 py-5 flex justify-between items-center hover:bg-slate-50 transition-colors">
-                <div className="space-y-1">
+                <div className="space-y-1 pr-4">
                   <p className="font-bold text-slate-800 text-base">
                     {language === 'ru' ? item.name_ru : item.name_uz}
                   </p>
@@ -85,10 +84,13 @@ export const Prices = () => {
                     ⏱ {item.duration_minutes} {language === 'ru' ? 'минут' : 'daqiqa'}
                   </p>
                 </div>
-                <div className="text-right">
-                  <span className="text-lg font-black text-blue-600">
-                    {formatPrice(item.price)} {t.prices.currency}
-                  </span>
+                <div className="shrink-0">
+                  <a
+                    href="#contact"
+                    className="inline-flex items-center justify-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl transition-all shadow-sm"
+                  >
+                    {language === 'ru' ? 'Записаться' : 'Qabulga yozilish'}
+                  </a>
                 </div>
               </div>
             ))}

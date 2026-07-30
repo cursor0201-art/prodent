@@ -55,15 +55,10 @@ export const About = () => {
                 <p>{t.about.text2}</p>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mt-10">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-10">
                 <div className="p-5 rounded-2xl bg-white border border-slate-100 shadow-sm flex flex-col items-center text-center">
                   <Award className="h-8 w-8 text-blue-600 mb-3" />
                   <h4 className="font-bold text-slate-800 text-sm">{language === 'ru' ? 'Лицензия Минздрава' : 'Sog\'liqni saqlash litsenziyasi'}</h4>
-                </div>
-                
-                <div className="p-5 rounded-2xl bg-white border border-slate-100 shadow-sm flex flex-col items-center text-center">
-                  <Heart className="h-8 w-8 text-red-500 mb-3" />
-                  <h4 className="font-bold text-slate-800 text-sm">{language === 'ru' ? 'Забота о детях' : 'Bolalar uchun g\'amxo\'rlik'}</h4>
                 </div>
                 
                 <div className="p-5 rounded-2xl bg-white border border-slate-100 shadow-sm flex flex-col items-center text-center">
