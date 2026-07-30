@@ -121,11 +121,33 @@ class AppointmentViewSet(viewsets.ModelViewSet):
                 
         sms_status = safe_send_sms()
         
-        # Send Telegram notification (non-blocking: failures here should NOT prevent appointment creation)
+        # Auto-record income transaction when appointment is created as COMPLETED
+        if appointment.status == 'COMPLETED':
+            amount = appointment.custom_price or (appointment.service.price if appointment.service else 0)
+            service_title = appointment.custom_service_name or (appointment.service.name_ru if appointment.service else 'Медицинская услуга')
+            if amount and amount > 0:
+                try:
+                    from finance.models import Transaction
+                    Transaction.objects.get_or_create(
+                        patient=appointment.patient,
+                        amount=amount,
+                        transaction_type='INCOME',
+                        description=f"Автоматическая оплата: {service_title}",
+                        defaults={
+                            'payment_method': 'CASH',
+                            'created_by': self.request.user if hasattr(self.request, 'user') and self.request.user.is_authenticated else None
+                        }
+                    )
+                except Exception as e:
+                    logger.error(f"Failed to auto-create transaction for completed appointment: {e}")
+
+        # Send telegram notification for new booking
+        sms_status = None
         try:
-            service_name = appointment.service.name_ru if appointment.service else 'Консультация'
+            from core.tasks import send_telegram_message_async
+            service_name = appointment.custom_service_name or (appointment.service.name_ru if appointment.service else 'Консультация')
             message = (
-                f"📅 <b>Новая запись на прием!</b>\n\n"
+                f"🆕 <b>Новая запись на прием!</b>\n\n"
                 f"Пациент: <b>{appointment.patient}</b>\n"
                 f"Врач: <b>{appointment.doctor}</b>\n"
                 f"Услуга: {service_name}\n"
@@ -166,22 +188,25 @@ class AppointmentViewSet(viewsets.ModelViewSet):
 
         # Notify clinic of status change
         if old_status != appointment.status:
-            # Auto-record income transaction when appointment is COMPLETED
-            if appointment.status == 'COMPLETED' and appointment.service and appointment.service.price > 0:
-                try:
-                    from finance.models import Transaction
-                    Transaction.objects.get_or_create(
-                        patient=appointment.patient,
-                        amount=appointment.service.price,
-                        transaction_type='INCOME',
-                        description=f"Автоматическая оплата: {appointment.service.name_ru}",
-                        defaults={
-                            'payment_method': 'CASH',
-                            'created_by': self.request.user if hasattr(self.request, 'user') and self.request.user.is_authenticated else None
-                        }
-                    )
-                except Exception as e:
-                    logger.error(f"Failed to auto-create transaction for completed appointment: {e}")
+            # Auto-record income transaction when appointment status becomes COMPLETED
+            if appointment.status == 'COMPLETED':
+                amount = appointment.custom_price or (appointment.service.price if appointment.service else 0)
+                service_title = appointment.custom_service_name or (appointment.service.name_ru if appointment.service else 'Медицинская услуга')
+                if amount and amount > 0:
+                    try:
+                        from finance.models import Transaction
+                        Transaction.objects.get_or_create(
+                            patient=appointment.patient,
+                            amount=amount,
+                            transaction_type='INCOME',
+                            description=f"Автоматическая оплата: {service_title}",
+                            defaults={
+                                'payment_method': 'CASH',
+                                'created_by': self.request.user if hasattr(self.request, 'user') and self.request.user.is_authenticated else None
+                            }
+                        )
+                    except Exception as e:
+                        logger.error(f"Failed to auto-create transaction for completed appointment: {e}")
 
             message = (
                 f"🔔 <b>Статус записи изменен!</b>\n\n"
@@ -329,25 +354,30 @@ class AppointmentViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['get'], url_path='analytics/top-services')
     def top_services(self, request):
         """Самые популярные и прибыльные услуги."""
-        top = (
-            Appointment.objects.filter(service__isnull=False).exclude(status='CANCELED')
-            .values('service__id', 'service__name_ru', 'service__price')
-            .annotate(
-                count=Count('id'),
-                total_revenue=Sum('service__price')
-            )
-            .order_by('-count')[:10]
-        )
-        result = []
-        for item in top:
-            result.append({
-                'id': item['service__id'],
-                'name': item['service__name_ru'],
-                'price': float(item['service__price']),
-                'count': item['count'],
-                'total_revenue': float(item['total_revenue'] or 0)
-            })
-        return Response(result)
+        appts = Appointment.objects.exclude(status='CANCELED').select_related('service')
+        
+        services_count = {}
+        for appt in appts:
+            name = appt.custom_service_name or (appt.service.name_ru if appt.service else None)
+            if not name:
+                continue
+            price = float(appt.custom_price or (appt.service.price if appt.service else 0))
+            if name not in services_count:
+                services_count[name] = {'name': name, 'count': 0, 'total_revenue': 0.0, 'price': price}
+            services_count[name]['count'] += 1
+            services_count[name]['total_revenue'] += price
+
+        sorted_services = sorted(services_count.values(), key=lambda x: x['count'], reverse=True)[:10]
+        return Response([
+            {
+                'id': idx + 1,
+                'name': s['name'],
+                'price': s['price'],
+                'count': s['count'],
+                'total_revenue': s['total_revenue']
+            }
+            for idx, s in enumerate(sorted_services)
+        ])
 
     @action(detail=False, methods=['get'], url_path='analytics/doctor-kpi')
     def doctor_kpi(self, request):
