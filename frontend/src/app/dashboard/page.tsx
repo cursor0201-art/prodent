@@ -48,6 +48,13 @@ const StatCard = ({ title, value, change, icon: Icon, color }: StatCardProps) =>
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://bare-lynx-bave-hub-129c3927.koyeb.app';
 
+const getLocalDateString = (d: Date = new Date()) => {
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
 export default function DashboardPage() {
   const [user, setUser] = useState<any>(null);
   const [stats, setStats] = useState({
@@ -77,9 +84,12 @@ export default function DashboardPage() {
         const appRes = await axios.get(`${API_URL}/api/appointments/appointments/`, { headers });
         const allAppts = appRes.data;
         
-        // Filter today's appointments
-        const todayStr = new Date().toISOString().split('T')[0];
-        const todayAppts = allAppts.filter((a: any) => a.start_time.startsWith(todayStr));
+        // Filter today's appointments accurately in user's local timezone
+        const todayStr = getLocalDateString(new Date());
+        const todayAppts = allAppts.filter((a: any) => {
+          const apptLocalDate = getLocalDateString(new Date(a.start_time));
+          return apptLocalDate === todayStr;
+        });
         setAppointments(todayAppts.slice(0, 5)); // show top 5 for dashboard
 
         // 2. Fetch financial summary
@@ -88,7 +98,6 @@ export default function DashboardPage() {
 
         // 3. Fetch patient count
         const patRes = await axios.get(`${API_URL}/api/patients/patients/`, { headers });
-        const totalPatientsCount = patRes.data.length || 0;
 
         // 4. Fetch top services
         const topSrvRes = await axios.get(`${API_URL}/api/appointments/appointments/analytics/top-services/`, { headers });
@@ -98,7 +107,7 @@ export default function DashboardPage() {
           patientsToday: todayAppts.length,
           totalBookings: allAppts.length,
           incomeToday: `${financeData.total_income.toLocaleString()} UZS`,
-          occupancy: todayAppts.length > 0 ? `${Math.min(100, Math.round((todayAppts.length / 12) * 100))}%` : '0%' // Roughly based on 12 slots a day
+          occupancy: todayAppts.length > 0 ? `${Math.min(100, Math.round((todayAppts.length / 12) * 100))}%` : '0%'
         });
       } catch (err) {
         console.error("Error loading dashboard data:", err);
