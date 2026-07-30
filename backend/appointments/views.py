@@ -166,6 +166,23 @@ class AppointmentViewSet(viewsets.ModelViewSet):
 
         # Notify clinic of status change
         if old_status != appointment.status:
+            # Auto-record income transaction when appointment is COMPLETED
+            if appointment.status == 'COMPLETED' and appointment.service and appointment.service.price > 0:
+                try:
+                    from finance.models import Transaction
+                    Transaction.objects.get_or_create(
+                        patient=appointment.patient,
+                        amount=appointment.service.price,
+                        transaction_type='INCOME',
+                        description=f"Автоматическая оплата: {appointment.service.name_ru}",
+                        defaults={
+                            'payment_method': 'CASH',
+                            'created_by': self.request.user if hasattr(self.request, 'user') and self.request.user.is_authenticated else None
+                        }
+                    )
+                except Exception as e:
+                    logger.error(f"Failed to auto-create transaction for completed appointment: {e}")
+
             message = (
                 f"🔔 <b>Статус записи изменен!</b>\n\n"
                 f"Пациент: <b>{appointment.patient}</b>\n"
