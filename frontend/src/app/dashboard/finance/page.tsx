@@ -113,13 +113,20 @@ export default function FinancePage() {
         axios.get(`${API_URL}/api/users/doctors/`),
         axios.get(`${API_URL}/api/patients/patients/`, { headers })
       ]);
-      setTransactions(txRes.data);
-      setSummary(summaryRes.data);
-      setDebts(debtRes.data);
-      setDoctors(docRes.data);
-      setPatients(patRes.data);
+      const rawTx = txRes.data;
+      setTransactions(Array.isArray(rawTx) ? rawTx : (rawTx.results || []));
+      setSummary(summaryRes.data || { total_income: 0, total_expense: 0, net_profit: 0 });
+      
+      const rawDebts = debtRes.data;
+      setDebts(Array.isArray(rawDebts) ? rawDebts : (rawDebts.results || []));
+      
+      const rawDocs = docRes.data;
+      setDoctors(Array.isArray(rawDocs) ? rawDocs : (rawDocs.results || []));
+      
+      const rawPats = patRes.data;
+      setPatients(Array.isArray(rawPats) ? rawPats : (rawPats.results || []));
     } catch (err) {
-      console.error(err);
+      console.error("Failed to load finance data:", err);
     } finally {
       setLoading(false);
     }
