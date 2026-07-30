@@ -330,7 +330,7 @@ class AppointmentViewSet(viewsets.ModelViewSet):
     def top_services(self, request):
         """Самые популярные и прибыльные услуги."""
         top = (
-            Appointment.objects.filter(status='COMPLETED', service__isnull=False)
+            Appointment.objects.filter(service__isnull=False).exclude(status='CANCELED')
             .values('service__id', 'service__name_ru', 'service__price')
             .annotate(
                 count=Count('id'),

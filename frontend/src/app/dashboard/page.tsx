@@ -248,7 +248,7 @@ export default function DashboardPage() {
             <h2 className="font-extrabold text-slate-800 text-lg mb-6">Спрос на услуги</h2>
             <div className="space-y-6">
               {topServices.length === 0 && !loading && (
-                 <div className="text-center text-slate-400 text-xs font-semibold py-8">Пока нет завершенных услуг.</div>
+                 <div className="text-center text-slate-400 text-xs font-semibold py-8">Пока нет активных записей на услуги.</div>
               )}
               {topServices.map((item, i) => {
                 const colors = ['bg-blue-600', 'bg-cyan-500', 'bg-purple-600', 'bg-green-600', 'bg-amber-500'];
