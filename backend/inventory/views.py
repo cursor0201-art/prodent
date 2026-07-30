@@ -16,6 +16,21 @@ class MaterialViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         material = serializer.save()
+        user = self.request.user if hasattr(self.request, 'user') and self.request.user.is_authenticated else None
+        
+        # Create initial MaterialLog for warehouse operation history
+        if material.quantity > 0:
+            try:
+                MaterialLog.objects.create(
+                    material=material,
+                    change_qty=material.quantity,
+                    log_type=MaterialLog.LogType.RESTOCK,
+                    description="Первичное добавление на склад",
+                    created_by=user
+                )
+            except Exception as e:
+                logger.error(f"Failed to create initial MaterialLog: {e}")
+
         # If material has initial quantity and price, record expense transaction
         if material.quantity > 0 and material.price_per_unit > 0:
             total_expense = material.quantity * material.price_per_unit
@@ -26,7 +41,7 @@ class MaterialViewSet(viewsets.ModelViewSet):
                     transaction_type='EXPENSE',
                     payment_method='CASH',
                     description=f"Закупка материала (склад): {material.name} ({material.quantity} {material.unit})",
-                    created_by=self.request.user if hasattr(self.request, 'user') and self.request.user.is_authenticated else None
+                    created_by=user
                 )
             except Exception as e:
                 logger.error(f"Failed to record material purchase expense: {e}")

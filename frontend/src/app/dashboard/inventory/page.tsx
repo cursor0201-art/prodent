@@ -38,9 +38,9 @@ interface MaterialLog {
     name: string;
     unit: string;
   };
-  quantity_changed: string;
-  log_type: 'REFILL' | 'CONSUMPTION';
-  notes: string;
+  change_qty: string;
+  log_type: string;
+  description: string;
   created_at: string;
 }
 
@@ -144,8 +144,9 @@ export default function InventoryPage() {
 
     const payload = {
       material: parseInt(selectedMatId),
-      quantity_changed: finalQty,
-      notes: logNotes || (logType === 'CONSUMPTION' ? 'Списание на лечение' : 'Пополнение запасов')
+      change_qty: finalQty,
+      log_type: logType === 'CONSUMPTION' ? 'CONSUMPTION' : 'RESTOCK',
+      description: logNotes || (logType === 'CONSUMPTION' ? 'Списание на лечение' : 'Пополнение запасов')
     };
 
     try {
@@ -294,20 +295,20 @@ export default function InventoryPage() {
               {logs.length === 0 ? (
                 <div className="text-center text-slate-400 text-xs py-8">История пуста.</div>
               ) : (
-                logs.slice(0, 8).map((log) => {
-                  const isNeg = parseFloat(log.quantity_changed) < 0;
+                logs.slice(0, 15).map((log) => {
+                  const isNeg = parseFloat(log.change_qty) < 0;
                   return (
                     <div key={log.id} className="pt-3.5 flex justify-between items-start">
                       <div className="space-y-1">
-                        <p className="text-xs font-bold text-slate-800">{log.material_detail?.name}</p>
-                        <p className="text-[10px] text-slate-400 font-semibold">{new Date(log.created_at).toLocaleDateString('ru-RU')} • {log.notes}</p>
+                        <p className="text-xs font-bold text-slate-800">{log.material_detail?.name || 'Материал'}</p>
+                        <p className="text-[10px] text-slate-400 font-semibold">{new Date(log.created_at).toLocaleDateString('ru-RU')} • {log.description || 'Операция на складе'}</p>
                       </div>
                       <div className={cn(
                         "text-xs font-black flex items-center gap-0.5",
                         isNeg ? "text-red-500" : "text-green-600"
                       )}>
                         {isNeg ? <ArrowDownRight className="h-3 w-3" /> : <ArrowUpRight className="h-3 w-3" />}
-                        {Math.abs(parseFloat(log.quantity_changed))} {log.material_detail?.unit}
+                        {Math.abs(parseFloat(log.change_qty))} {log.material_detail?.unit || 'шт'}
                       </div>
                     </div>
                   );
