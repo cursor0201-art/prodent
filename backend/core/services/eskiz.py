@@ -92,13 +92,16 @@ class EskizSMSService:
     def _send_request(self, phone: str, message: str, token: str, sms_type: str = 'general', patient=None) -> bool:
         url = f"{self.base_url}/message/sms/send"
         headers = {
-            'Authorization': f'Bearer {token}'
+            'Authorization': f'Bearer {token}',
+            'Accept': 'application/json',
         }
         payload = {
             'mobile_phone': phone,
             'message': message,
             'from': self.sender,
         }
+
+        logger.info(f"ESKIZ SEND DEBUG: phone={phone!r} length={len(phone)}")
 
         try:
             response = requests.post(url, headers=headers, data=payload, timeout=10)
@@ -107,29 +110,54 @@ class EskizSMSService:
                 return False
                 
             response_data = response.json() if response.content else {}
-            eskiz_id = response_data.get('id') or response_data.get('data', {}).get('id')
             
-            # Since Eskiz returns 'waiting' synchronously, we log it as waiting.
-            # Webhook will update it to success (delivered) later.
-            status_str = 'waiting' if response.ok else 'failed'
+            # Check HTTP error status
+            if not response.ok:
+                self._log_sms(
+                    patient=patient,
+                    phone=phone,
+                    sms_type=sms_type,
+                    message=message,
+                    status='failed',
+                    response_data=response_data
+                )
+                logger.error(f"Eskiz HTTP error: {response_data}")
+                return False
+
+            # Check if Eskiz JSON explicitly returned an error status (even on HTTP 200)
+            eskiz_status = str(response_data.get('status', '')).lower()
+            if eskiz_status in ['error', 'failed']:
+                self._log_sms(
+                    patient=patient,
+                    phone=phone,
+                    sms_type=sms_type,
+                    message=message,
+                    status='failed',
+                    response_data=response_data
+                )
+                logger.error(f"Eskiz rejected SMS to {phone}: {response_data}")
+                return False
+
+            eskiz_id = response_data.get('id') or response_data.get('data', {}).get('id')
 
             self._log_sms(
                 patient=patient,
                 phone=phone,
                 sms_type=sms_type,
                 message=message,
-                status=status_str,
+                status='waiting',
                 eskiz_message_id=str(eskiz_id) if eskiz_id else None,
                 response_data=response_data
             )
 
-            response.raise_for_status()
-            logger.info(f"Successfully sent SMS to {phone}. Response: {response_data}")
+            logger.info(f"SMS accepted by Eskiz. phone={phone} id={eskiz_id}")
             return True
         except requests.exceptions.RequestException as e:
             code = e.response.status_code if e.response is not None else None
-            response_text = e.response.text if e.response is not None else "No response body"
-            resp_json = e.response.json() if (e.response is not None and e.response.content) else {'error': str(e)}
+            try:
+                resp_json = e.response.json() if (e.response is not None and e.response.content) else {'error': str(e)}
+            except ValueError:
+                resp_json = {'error': e.response.text if e.response is not None else str(e)}
             
             if code != 401:
                 self._log_sms(
@@ -141,9 +169,7 @@ class EskizSMSService:
                     response_data=resp_json
                 )
             
-            logger.error(f"Failed to send SMS to {phone}. Code: {code}. Response: {response_text}. Error: {e}")
-            if code == 401:
-                return False
+            logger.error(f"Failed to send SMS to {phone}. Code: {code}. Response: {resp_json}. Error: {e}")
             return False
 
     def _log_sms(self, patient, phone, sms_type, message, status, eskiz_message_id=None, response_data=None):
