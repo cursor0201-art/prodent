@@ -31,10 +31,10 @@ export const Prices = () => {
         // Fallback seed data
         setServices([
           { id: 1, name_ru: "Консультация врача", name_uz: "Shifokor maslahati", price: "50000.00", duration_minutes: 20 },
-          { id: 2, name_ru: "Лечение кариеса (1 зуб)", name_uz: "Kariesni davolash (1 ta tish)", price: "350000.00", duration_minutes: 45 },
-          { id: 3, name_ru: "Установка керамического винира", name_uz: "Keramik vinir o'rnatish", price: "2000000.00", duration_minutes: 60 },
-          { id: 4, name_ru: "Имплант Straumann (Швейцария)", name_uz: "Straumann implanti (Shveytsariya)", price: "5500000.00", duration_minutes: 90 },
-          { id: 5, name_ru: "Проф. чистка (две челюсти)", name_uz: "Prof. tozalash (ikkala jag')", price: "400000.00", duration_minutes: 30 }
+          { id: 2, name_ru: "Лечение кариеса", name_uz: "Kariesni davolash", price: "350000.00", duration_minutes: 45 },
+          { id: 3, name_ru: "Имплант Straumann", name_uz: "Straumann implanti", price: "5500000.00", duration_minutes: 90 },
+          { id: 4, name_ru: "Проф. чистка", name_uz: "Prof. tozalash", price: "400000.00", duration_minutes: 30 },
+          { id: 5, name_ru: "Другое лечение", name_uz: "Boshqa muolaja", price: "2000000.00", duration_minutes: 60 }
         ]);
       } finally {
         setLoading(false);
