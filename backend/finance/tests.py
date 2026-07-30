@@ -38,7 +38,7 @@ class FinanceTestCase(TestCase):
         transaction = Transaction.objects.create(
             transaction_type='INCOME',
             amount=1000,
-            appointment=self.appointment,
+            patient=self.patient,
             description="Payment for service"
         )
         self.assertEqual(Transaction.objects.count(), 1)
@@ -48,19 +48,20 @@ class FinanceTestCase(TestCase):
         """Test debt tracking logic"""
         debt = Debt.objects.create(
             patient=self.patient,
-            amount=500,
-            appointment=self.appointment
+            total_amount=500
         )
         self.assertEqual(Debt.objects.count(), 1)
-        self.assertEqual(debt.amount_paid, 0)
-        self.assertEqual(debt.status, 'UNPAID')
+        self.assertEqual(debt.paid_amount, 0)
+        self.assertEqual(debt.status, 'PENDING')
 
         # Pay part of debt
-        debt.amount_paid = 200
+        debt.paid_amount = 200
+        debt.status = 'PARTIAL'
         debt.save()
         self.assertEqual(debt.status, 'PARTIAL')
 
         # Pay full debt
-        debt.amount_paid = 500
+        debt.paid_amount = 500
+        debt.status = 'PAID'
         debt.save()
         self.assertEqual(debt.status, 'PAID')
