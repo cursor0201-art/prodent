@@ -64,6 +64,9 @@ class EskizSMSService:
         Универсальный метод отправки SMS с сохранением в SMSLog.
         """
         clean_phone = ''.join(filter(str.isdigit, str(phone)))
+        if len(clean_phone) == 9:
+            clean_phone = '998' + clean_phone
+            
         if not clean_phone:
             logger.error("Invalid phone number provided.")
             self._log_sms(patient=patient, phone=phone, sms_type=sms_type, message=text, status='failed', response_data={'error': 'Invalid phone number'})
