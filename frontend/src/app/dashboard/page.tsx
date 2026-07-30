@@ -79,38 +79,49 @@ export default function DashboardPage() {
 
       const headers = { Authorization: `Bearer ${token}` };
 
+      // 1. Fetch appointments
       try {
-        // 1. Fetch appointments
         const appRes = await axios.get(`${API_URL}/api/appointments/appointments/`, { headers });
-        const allAppts = appRes.data;
+        const rawData = appRes.data;
+        const allAppts = Array.isArray(rawData) ? rawData : (rawData.results || []);
         
-        // Filter today's appointments accurately in user's local timezone
         const todayStr = getLocalDateString(new Date());
         const todayAppts = allAppts.filter((a: any) => {
+          if (!a.start_time) return false;
           const apptLocalDate = getLocalDateString(new Date(a.start_time));
           return apptLocalDate === todayStr;
         });
-        setAppointments(todayAppts.slice(0, 5)); // show top 5 for dashboard
-
-        // 2. Fetch financial summary
-        const finRes = await axios.get(`${API_URL}/api/finance/transactions/summary/`, { headers });
-        const financeData = finRes.data;
-
-        // 3. Fetch patient count
-        const patRes = await axios.get(`${API_URL}/api/patients/patients/`, { headers });
-
-        // 4. Fetch top services
-        const topSrvRes = await axios.get(`${API_URL}/api/appointments/appointments/analytics/top-services/`, { headers });
-        setTopServices(topSrvRes.data);
-
-        setStats({
+        
+        setAppointments(todayAppts.slice(0, 5));
+        setStats(prev => ({
+          ...prev,
           patientsToday: todayAppts.length,
           totalBookings: allAppts.length,
-          incomeToday: `${financeData.total_income.toLocaleString()} UZS`,
           occupancy: todayAppts.length > 0 ? `${Math.min(100, Math.round((todayAppts.length / 12) * 100))}%` : '0%'
-        });
+        }));
       } catch (err) {
-        console.error("Error loading dashboard data:", err);
+        console.error("Error loading appointments:", err);
+      }
+
+      // 2. Fetch financial summary
+      try {
+        const finRes = await axios.get(`${API_URL}/api/finance/transactions/summary/`, { headers });
+        const financeData = finRes.data || {};
+        const income = financeData.total_income || 0;
+        setStats(prev => ({
+          ...prev,
+          incomeToday: `${Number(income).toLocaleString()} сум`
+        }));
+      } catch (err) {
+        console.error("Error loading finance summary:", err);
+      }
+
+      // 3. Fetch top services
+      try {
+        const topSrvRes = await axios.get(`${API_URL}/api/appointments/appointments/analytics/top-services/`, { headers });
+        setTopServices(Array.isArray(topSrvRes.data) ? topSrvRes.data : []);
+      } catch (err) {
+        console.error("Error loading top services:", err);
       } finally {
         setLoading(false);
       }
