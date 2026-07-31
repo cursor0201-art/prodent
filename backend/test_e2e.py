@@ -53,7 +53,7 @@ from core.services.sms_templates import get_birthday_message
 
 # 2. Отправка тестового SMS
 phone = "998901234567"
-test_patient = Patient(first_name="Test", last_name="User", language="ru")
+test_patient = Patient(first_name="Test", last_name="User", birth_date=timezone.now().date(), language="ru")
 msg = get_birthday_message(test_patient)
 
 try:
