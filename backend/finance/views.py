@@ -41,19 +41,19 @@ class TransactionViewSet(viewsets.ModelViewSet):
             from appointments.models import Appointment
             completed_appts = Appointment.objects.filter(status='COMPLETED').select_related('patient', 'service')
             for appt in completed_appts:
-                amount = appt.custom_price or (appt.service.price if appt.service else 0)
-                if amount and amount > 0:
-                    service_title = appt.custom_service_name or (appt.service.name_ru if appt.service else 'Медицинская услуга')
-                    desc = f"Оплата за прием: {service_title}"
-                    Transaction.objects.get_or_create(
-                        patient=appt.patient,
-                        amount=amount,
-                        transaction_type='INCOME',
-                        defaults={
-                            'description': desc,
-                            'payment_method': 'CASH'
-                        }
-                    )
+                if not Transaction.objects.filter(appointment=appt, is_voided=False).exists():
+                    amount = appt.custom_price or (appt.service.price if appt.service else 0)
+                    if amount and amount > 0:
+                        service_title = appt.custom_service_name or (appt.service.name_ru if appt.service else 'Медицинская услуга')
+                        desc = f"Оплата за прием: {service_title}"
+                        Transaction.objects.create(
+                            appointment=appt,
+                            patient=appt.patient,
+                            amount=amount,
+                            transaction_type='INCOME',
+                            description=desc,
+                            payment_method='CASH'
+                        )
         except Exception as e:
             logger.error(f"Error auto-syncing completed appointments to finance: {e}")
 

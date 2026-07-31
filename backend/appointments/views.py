@@ -123,23 +123,23 @@ class AppointmentViewSet(viewsets.ModelViewSet):
         
         # Auto-record income transaction when appointment is created as COMPLETED
         if appointment.status == 'COMPLETED':
-            amount = appointment.custom_price or (appointment.service.price if appointment.service else 0)
-            service_title = appointment.custom_service_name or (appointment.service.name_ru if appointment.service else 'Медицинская услуга')
-            if amount and amount > 0:
-                try:
-                    from finance.models import Transaction
-                    Transaction.objects.get_or_create(
-                        patient=appointment.patient,
-                        amount=amount,
-                        transaction_type='INCOME',
-                        description=f"Автоматическая оплата: {service_title}",
-                        defaults={
-                            'payment_method': 'CASH',
-                            'created_by': self.request.user if hasattr(self.request, 'user') and self.request.user.is_authenticated else None
-                        }
-                    )
-                except Exception as e:
-                    logger.error(f"Failed to auto-create transaction for completed appointment: {e}")
+            try:
+                from finance.models import Transaction
+                if not Transaction.objects.filter(appointment=appointment, is_voided=False).exists():
+                    amount = appointment.custom_price or (appointment.service.price if appointment.service else 0)
+                    if amount and amount > 0:
+                        service_title = appointment.custom_service_name or (appointment.service.name_ru if appointment.service else 'Медицинская услуга')
+                        Transaction.objects.create(
+                            appointment=appointment,
+                            patient=appointment.patient,
+                            amount=amount,
+                            transaction_type='INCOME',
+                            description=f"Автоматическая оплата: {service_title}",
+                            payment_method='CASH',
+                            created_by=self.request.user if hasattr(self.request, 'user') and self.request.user.is_authenticated else None
+                        )
+            except Exception as e:
+                logger.error(f"Failed to auto-create transaction for completed appointment: {e}")
 
         # Send telegram notification for new booking
         sms_status = None
@@ -186,27 +186,25 @@ class AppointmentViewSet(viewsets.ModelViewSet):
         
         from core.tasks import send_telegram_message_async
 
-        # Notify clinic of status change
-        if old_status != appointment.status:
-            # Auto-record income transaction when appointment status becomes COMPLETED
-            if appointment.status == 'COMPLETED':
-                amount = appointment.custom_price or (appointment.service.price if appointment.service else 0)
-                service_title = appointment.custom_service_name or (appointment.service.name_ru if appointment.service else 'Медицинская услуга')
-                if amount and amount > 0:
-                    try:
-                        from finance.models import Transaction
-                        Transaction.objects.get_or_create(
+        # Auto-record income transaction when appointment status becomes COMPLETED
+        if appointment.status == 'COMPLETED':
+            try:
+                from finance.models import Transaction
+                if not Transaction.objects.filter(appointment=appointment, is_voided=False).exists():
+                    amount = appointment.custom_price or (appointment.service.price if appointment.service else 0)
+                    if amount and amount > 0:
+                        service_title = appointment.custom_service_name or (appointment.service.name_ru if appointment.service else 'Медицинская услуга')
+                        Transaction.objects.create(
+                            appointment=appointment,
                             patient=appointment.patient,
                             amount=amount,
                             transaction_type='INCOME',
                             description=f"Автоматическая оплата: {service_title}",
-                            defaults={
-                                'payment_method': 'CASH',
-                                'created_by': self.request.user if hasattr(self.request, 'user') and self.request.user.is_authenticated else None
-                            }
+                            payment_method='CASH',
+                            created_by=self.request.user if hasattr(self.request, 'user') and self.request.user.is_authenticated else None
                         )
-                    except Exception as e:
-                        logger.error(f"Failed to auto-create transaction for completed appointment: {e}")
+            except Exception as e:
+                logger.error(f"Failed to auto-create transaction for completed appointment: {e}")
 
             message = (
                 f"🔔 <b>Статус записи изменен!</b>\n\n"
