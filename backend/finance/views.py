@@ -10,9 +10,57 @@ from .serializers import TransactionSerializer, DebtSerializer
 import logging
 logger = logging.getLogger(__name__)
 
+def auto_sync_completed_appointments():
+    """Ensure all COMPLETED appointments have corresponding income transactions."""
+    try:
+        from appointments.models import Appointment
+        from finance.models import Transaction
+        completed_appts = Appointment.objects.filter(status='COMPLETED').select_related('patient', 'service')
+        for appt in completed_appts:
+            has_tx = False
+            try:
+                has_tx = Transaction.objects.filter(appointment=appt, is_voided=False).exists()
+            except Exception:
+                has_tx = Transaction.objects.filter(patient=appt.patient, is_voided=False, transaction_type='INCOME').exists()
+
+            if not has_tx:
+                amount = appt.custom_price or (appt.service.price if appt.service else 0)
+                if amount and amount > 0:
+                    service_title = appt.custom_service_name or (appt.service.name_ru if appt.service else 'Медицинская услуга')
+                    desc = f"Оплата за прием: {service_title}"
+                    try:
+                        Transaction.objects.create(
+                            appointment=appt,
+                            patient=appt.patient,
+                            amount=amount,
+                            transaction_type='INCOME',
+                            description=desc,
+                            payment_method='CASH'
+                        )
+                    except Exception:
+                        Transaction.objects.create(
+                            patient=appt.patient,
+                            amount=amount,
+                            transaction_type='INCOME',
+                            description=desc,
+                            payment_method='CASH'
+                        )
+    except Exception as e:
+        logger.error(f"Error auto-syncing completed appointments to finance: {e}")
+
+
 class TransactionViewSet(viewsets.ModelViewSet):
     queryset = Transaction.objects.all().order_by('-created_at')
-    
+    serializer_class = TransactionSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter]
+    filterset_fields = ['transaction_type', 'payment_method', 'patient', 'employee']
+    search_fields = ['description', 'patient__first_name', 'patient__last_name']
+
+    def get_queryset(self):
+        auto_sync_completed_appointments()
+        return Transaction.objects.all().order_by('-created_at')
+
     def destroy(self, request, *args, **kwargs):
         """Prevent physical deletion of transactions."""
         return Response(
@@ -27,35 +75,11 @@ class TransactionViewSet(viewsets.ModelViewSet):
         if transaction.void(request.user):
             return Response({"status": "Транзакция успешно аннулирована."})
         return Response({"status": "Транзакция уже была аннулирована."}, status=status.HTTP_400_BAD_REQUEST)
-    serializer_class = TransactionSerializer
-    permission_classes = [permissions.IsAuthenticated]
-    filter_backends = [DjangoFilterBackend, filters.SearchFilter]
-    filterset_fields = ['transaction_type', 'payment_method', 'patient', 'employee']
-    search_fields = ['description', 'patient__first_name', 'patient__last_name']
 
     @action(detail=False, methods=['get'], url_path='summary')
     def summary(self, request):
         """Returns financial summary metrics (income, expenses, cash flow)"""
-        # Auto-sync any COMPLETED appointments that don't have income transactions recorded yet
-        try:
-            from appointments.models import Appointment
-            completed_appts = Appointment.objects.filter(status='COMPLETED').select_related('patient', 'service')
-            for appt in completed_appts:
-                if not Transaction.objects.filter(appointment=appt, is_voided=False).exists():
-                    amount = appt.custom_price or (appt.service.price if appt.service else 0)
-                    if amount and amount > 0:
-                        service_title = appt.custom_service_name or (appt.service.name_ru if appt.service else 'Медицинская услуга')
-                        desc = f"Оплата за прием: {service_title}"
-                        Transaction.objects.create(
-                            appointment=appt,
-                            patient=appt.patient,
-                            amount=amount,
-                            transaction_type='INCOME',
-                            description=desc,
-                            payment_method='CASH'
-                        )
-        except Exception as e:
-            logger.error(f"Error auto-syncing completed appointments to finance: {e}")
+        auto_sync_completed_appointments()
 
         income = Transaction.objects.filter(transaction_type='INCOME', is_voided=False).aggregate(total=Sum('amount'))['total'] or 0.00
         expense = Transaction.objects.filter(transaction_type='EXPENSE', is_voided=False).aggregate(total=Sum('amount'))['total'] or 0.00
