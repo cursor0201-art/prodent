@@ -13,31 +13,51 @@ logger = logging.getLogger(__name__)
 def auto_sync_financial_transactions():
     """Ensure all COMPLETED appointments and Material RESTOCK logs have corresponding finance transactions."""
     try:
+        # Ensure appointment_id DB column exists dynamically
+        try:
+            from django.db import connection
+            with connection.cursor() as cursor:
+                cursor.execute("""
+                    DO $$ 
+                    BEGIN 
+                        IF NOT EXISTS (
+                            SELECT 1 FROM information_schema.columns 
+                            WHERE table_name='finance_transaction' AND column_name='appointment_id'
+                        ) THEN 
+                            ALTER TABLE finance_transaction ADD COLUMN appointment_id integer NULL REFERENCES appointments_appointment(id) ON DELETE SET NULL;
+                        END IF;
+                    END $$;
+                """)
+        except Exception:
+            pass
+
         from appointments.models import Appointment
-        from inventory.models import MaterialLog
+        from inventory.models import MaterialLog, Material
         from finance.models import Transaction
 
         # 1. Sync COMPLETED appointments (INCOME)
         completed_appts = Appointment.objects.filter(status='COMPLETED').select_related('patient', 'service')
         for appt in completed_appts:
+            unique_desc = f"Оплата за прием #{appt.id}: {appt.custom_service_name or (appt.service.name_ru if appt.service else 'Медицинская услуга')}"
             has_tx = False
             try:
                 has_tx = Transaction.objects.filter(appointment=appt, is_voided=False).exists()
             except Exception:
-                has_tx = Transaction.objects.filter(patient=appt.patient, is_voided=False, transaction_type='INCOME').exists()
+                pass
+            
+            if not has_tx:
+                has_tx = Transaction.objects.filter(description__icontains=f"#{appt.id}:", is_voided=False).exists()
 
             if not has_tx:
                 amount = appt.custom_price or (appt.service.price if appt.service else 0)
-                if amount and amount > 0:
-                    service_title = appt.custom_service_name or (appt.service.name_ru if appt.service else 'Медицинская услуга')
-                    desc = f"Оплата за прием: {service_title}"
+                if amount and float(amount) > 0:
                     try:
                         Transaction.objects.create(
                             appointment=appt,
                             patient=appt.patient,
                             amount=amount,
                             transaction_type='INCOME',
-                            description=desc,
+                            description=unique_desc,
                             payment_method='CASH'
                         )
                     except Exception:
@@ -45,23 +65,36 @@ def auto_sync_financial_transactions():
                             patient=appt.patient,
                             amount=amount,
                             transaction_type='INCOME',
-                            description=desc,
+                            description=unique_desc,
                             payment_method='CASH'
                         )
 
         # 2. Sync Material RESTOCK logs & Inventory Purchases (EXPENSE)
         restock_logs = MaterialLog.objects.filter(log_type='RESTOCK', change_qty__gt=0).select_related('material')
         for log in restock_logs:
-            if log.material and log.material.price_per_unit and log.material.price_per_unit > 0:
+            if log.material and log.material.price_per_unit and float(log.material.price_per_unit) > 0:
                 cost = float(log.change_qty) * float(log.material.price_per_unit)
-                desc = f"Закупка/пополнение склада: {log.material.name} (+{log.change_qty} {log.material.unit})"
-                if not Transaction.objects.filter(description=desc, transaction_type='EXPENSE', is_voided=False).exists():
+                unique_log_desc = f"Закупка/пополнение склада #{log.id}: {log.material.name} (+{log.change_qty} {log.material.unit})"
+                if not Transaction.objects.filter(description__icontains=f"#{log.id}:", transaction_type='EXPENSE', is_voided=False).exists():
                     Transaction.objects.create(
                         amount=cost,
                         transaction_type='EXPENSE',
                         payment_method='CASH',
-                        description=desc
+                        description=unique_log_desc
                     )
+
+        # 3. Sync initial Material stock items with price_per_unit (EXPENSE)
+        materials_with_stock = Material.objects.filter(quantity__gt=0, price_per_unit__gt=0)
+        for mat in materials_with_stock:
+            unique_mat_desc = f"Первичное пополнение склада (Материал #{mat.id}): {mat.name} ({mat.quantity} {mat.unit})"
+            if not Transaction.objects.filter(description__icontains=f"#{mat.id}):", transaction_type='EXPENSE', is_voided=False).exists():
+                cost = float(mat.quantity) * float(mat.price_per_unit)
+                Transaction.objects.create(
+                    amount=cost,
+                    transaction_type='EXPENSE',
+                    payment_method='CASH',
+                    description=unique_mat_desc
+                )
     except Exception as e:
         logger.error(f"Error auto-syncing financial transactions: {e}")
 
