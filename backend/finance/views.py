@@ -10,11 +10,14 @@ from .serializers import TransactionSerializer, DebtSerializer
 import logging
 logger = logging.getLogger(__name__)
 
-def auto_sync_completed_appointments():
-    """Ensure all COMPLETED appointments have corresponding income transactions."""
+def auto_sync_financial_transactions():
+    """Ensure all COMPLETED appointments and Material RESTOCK logs have corresponding finance transactions."""
     try:
         from appointments.models import Appointment
+        from inventory.models import MaterialLog
         from finance.models import Transaction
+
+        # 1. Sync COMPLETED appointments (INCOME)
         completed_appts = Appointment.objects.filter(status='COMPLETED').select_related('patient', 'service')
         for appt in completed_appts:
             has_tx = False
@@ -45,8 +48,22 @@ def auto_sync_completed_appointments():
                             description=desc,
                             payment_method='CASH'
                         )
+
+        # 2. Sync Material RESTOCK logs & Inventory Purchases (EXPENSE)
+        restock_logs = MaterialLog.objects.filter(log_type='RESTOCK', change_qty__gt=0).select_related('material')
+        for log in restock_logs:
+            if log.material and log.material.price_per_unit and log.material.price_per_unit > 0:
+                cost = float(log.change_qty) * float(log.material.price_per_unit)
+                desc = f"Закупка/пополнение склада: {log.material.name} (+{log.change_qty} {log.material.unit})"
+                if not Transaction.objects.filter(description=desc, transaction_type='EXPENSE', is_voided=False).exists():
+                    Transaction.objects.create(
+                        amount=cost,
+                        transaction_type='EXPENSE',
+                        payment_method='CASH',
+                        description=desc
+                    )
     except Exception as e:
-        logger.error(f"Error auto-syncing completed appointments to finance: {e}")
+        logger.error(f"Error auto-syncing financial transactions: {e}")
 
 
 class TransactionViewSet(viewsets.ModelViewSet):
@@ -58,7 +75,7 @@ class TransactionViewSet(viewsets.ModelViewSet):
     search_fields = ['description', 'patient__first_name', 'patient__last_name']
 
     def get_queryset(self):
-        auto_sync_completed_appointments()
+        auto_sync_financial_transactions()
         return Transaction.objects.all().order_by('-created_at')
 
     def destroy(self, request, *args, **kwargs):
@@ -79,7 +96,7 @@ class TransactionViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['get'], url_path='summary')
     def summary(self, request):
         """Returns financial summary metrics (income, expenses, cash flow)"""
-        auto_sync_completed_appointments()
+        auto_sync_financial_transactions()
 
         income = Transaction.objects.filter(transaction_type='INCOME', is_voided=False).aggregate(total=Sum('amount'))['total'] or 0.00
         expense = Transaction.objects.filter(transaction_type='EXPENSE', is_voided=False).aggregate(total=Sum('amount'))['total'] or 0.00
