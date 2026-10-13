@@ -56,6 +56,7 @@ def send_appointment_reminders():
     """
     from appointments.models import Appointment
     now = timezone.now()
+    logger.info("Checking appointment reminders at %s", now.isoformat())
 
     # Ищем записи, которые начнутся в ближайшие 24 часа + 1 час.
     upcoming = Appointment.objects.filter(
@@ -70,11 +71,17 @@ def send_appointment_reminders():
     for appt in upcoming:
         time_diff = (appt.start_time - now).total_seconds() / 60.0
         reminder_minutes = next(
-            (offset for offset in reminder_offsets if offset - 2 <= time_diff <= offset + 1),
+            (offset for offset in reminder_offsets if offset - 5 <= time_diff <= offset + 1),
             None,
         )
         if reminder_minutes is None:
             continue
+
+        logger.info(
+            "Appointment reminder due: appointment_id=%s reminder_minutes=%s",
+            appt.id,
+            reminder_minutes,
+        )
 
         # Уведомления в Telegram
         if appt.patient.telegram_chat_id:
@@ -93,8 +100,15 @@ def send_appointment_reminders():
         # Уведомления через Eskiz SMS
         if appt.patient.phone:
             from core.services.eskiz import eskiz_service
-            if eskiz_service.send_reminder_sms(appt, reminder_minutes=reminder_minutes):
+            sms_sent = eskiz_service.send_reminder_sms(appt, reminder_minutes=reminder_minutes)
+            if sms_sent:
                 sent_count += 1
+            else:
+                logger.warning(
+                    "Appointment reminder SMS was not sent: appointment_id=%s reminder_minutes=%s",
+                    appt.id,
+                    reminder_minutes,
+                )
 
     return f"Отправлено SMS напоминаний: {sent_count}"
 

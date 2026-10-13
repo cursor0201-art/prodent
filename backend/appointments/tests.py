@@ -70,14 +70,14 @@ class AppointmentTestCase(TestCase):
         mock_send_reminder_sms.assert_called_once_with(appointment, reminder_minutes=1440)
 
     @patch('core.services.eskiz.eskiz_service.send_reminder_sms', return_value=True)
-    def test_one_hour_reminder_is_sent_when_task_runs_late(self, mock_send_reminder_sms):
-        """Minute polling should tolerate scheduler drift around the one-hour mark."""
+    def test_one_hour_reminder_is_sent_when_task_runs_five_minutes_late(self, mock_send_reminder_sms):
+        """Minute polling should catch up when the scheduler runs late."""
         now = timezone.now()
         appointment = Appointment.objects.create(
             patient=self.patient,
             doctor=self.doctor,
-            start_time=now + timezone.timedelta(minutes=59, seconds=20),
-            end_time=now + timezone.timedelta(minutes=89, seconds=20),
+            start_time=now + timezone.timedelta(minutes=55),
+            end_time=now + timezone.timedelta(minutes=85),
             status='BOOKED'
         )
 
