@@ -203,25 +203,25 @@ class EskizSMSService:
         )
         return self.send_sms(patient.phone, msg, sms_type='registration', patient=patient)
 
-    def send_reminder_sms(self, appointment) -> bool:
+    def send_reminder_sms(self, appointment, reminder_minutes: int = 60) -> bool:
         """
-        Отправка SMS за 1 час до приема.
+        Отправка SMS напоминания до приема: 1 день, 1 час, 30/10 минут.
         """
         patient = appointment.patient
         if not patient.phone:
             return False
-            
-        # Защита от дублей
-        duplicate_key = f"reminder_sms_sent_{appointment.id}"
+
+        duplicate_key = f"reminder_sms_sent_{appointment.id}_{reminder_minutes}"
         if cache.get(duplicate_key):
-            logger.info(f"Reminder SMS already sent for appointment {appointment.id}")
+            logger.info(f"Reminder SMS already sent for appointment {appointment.id} ({reminder_minutes} min)")
             return False
 
         local_time = timezone.localtime(appointment.start_time)
         msg = get_reminder_message(
             patient=patient,
             date=local_time.strftime('%d.%m.%Y'),
-            time_str=local_time.strftime('%H:%M')
+            time_str=local_time.strftime('%H:%M'),
+            reminder_minutes=reminder_minutes,
         )
         success = self.send_sms(patient.phone, msg, sms_type='reminder', patient=patient)
         if success:

@@ -23,12 +23,14 @@ interface LanguageContextType {
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [language, setLanguageState] = useState<Language>('ru');
+  const [language, setLanguageState] = useState<Language>('uz');
 
   useEffect(() => {
     const savedLang = localStorage.getItem('language') as Language;
     if (savedLang === 'ru' || savedLang === 'uz') {
       setLanguageState(savedLang);
+    } else {
+      setLanguageState('uz');
     }
   }, []);
 

@@ -166,7 +166,7 @@ CSRF_TRUSTED_ORIGINS = [
     'https://bare-lynx-bave-hub-129c3927.koyeb.app',
 ]
 
-LANGUAGE_CODE = 'ru-ru'
+LANGUAGE_CODE = 'uz-uz'
 TIME_ZONE = 'Asia/Tashkent'
 
 STATIC_URL = 'static/'

@@ -52,53 +52,50 @@ def check_material_expirations():
 def send_appointment_reminders():
     """
     Каждую минуту проверяет записи на приём и отправляет напоминания:
-    за 1 час, за 30 минут и за 10 минут.
+    за 1 день, за 1 час, за 30 минут и за 10 минут.
     """
     from appointments.models import Appointment
     now = timezone.now()
-    
-    # Ищем записи в ближайшие 65 минут, у которых есть chat_id
+
+    # Ищем записи, которые начнутся в ближайшие 24 часа + 1 час.
     upcoming = Appointment.objects.filter(
         status='BOOKED',
         start_time__gte=now,
-        start_time__lte=now + timedelta(minutes=65)
+        start_time__lte=now + timedelta(days=1, hours=1)
     )
-    
+
+    reminder_offsets = (1440, 60, 30, 10)
+
     sent_count = 0
     for appt in upcoming:
         time_diff = (appt.start_time - now).total_seconds() / 60.0
-        minutes_left = round(time_diff)
-        
+        reminder_minutes = next(
+            (offset for offset in reminder_offsets if offset - 2 <= time_diff <= offset + 1),
+            None,
+        )
+        if reminder_minutes is None:
+            continue
+
         # Уведомления в Telegram
         if appt.patient.telegram_chat_id:
-            should_send_tg = False
-            reminder_text = ""
-            if minutes_left == 60:
-                should_send_tg, reminder_text = True, "ровно через 1 час"
-            elif minutes_left == 30:
-                should_send_tg, reminder_text = True, "через 30 минут"
-            elif minutes_left == 10:
-                should_send_tg, reminder_text = True, "через 10 минут"
-                
-            if should_send_tg:
-                service_name = appt.service.name_ru if appt.service else 'Консультация'
-                tg_message = (
-                    f"🔔 <b>Напоминание о приёме!</b>\n\n"
-                    f"Здравствуйте, {appt.patient.first_name}! 👋\n"
-                    f"Ваш приём у стоматолога начнется <b>{reminder_text}</b>.\n\n"
-                    f"👨‍⚕️ Врач: <b>{appt.doctor}</b>\n"
-                    f"🩺 Услуга: {service_name}\n"
-                    f"📅 Время: <b>{timezone.localtime(appt.start_time).strftime('%H:%M')}</b>\n\n"
-                    f"Ждем вас!"
-                )
-                send_telegram_message(tg_message, to_chat_id=appt.patient.telegram_chat_id)
-        
-        # Уведомления через Eskiz SMS (ровно за 1 час)
-        if minutes_left == 60 and appt.patient.phone:
+            service_name = appt.service.name_ru if appt.service else 'Консультация'
+            tg_message = (
+                f"🔔 <b>Напоминание о приёме!</b>\n\n"
+                f"Здравствуйте, {appt.patient.first_name}! 👋\n"
+                f"Ваш приём у стоматолога начнется через <b>{reminder_minutes} мин.</b>.\n\n"
+                f"👨‍⚕️ Врач: <b>{appt.doctor}</b>\n"
+                f"🩺 Услуга: {service_name}\n"
+                f"📅 Время: <b>{timezone.localtime(appt.start_time).strftime('%H:%M')}</b>\n\n"
+                f"Ждем вас!"
+            )
+            send_telegram_message(tg_message, to_chat_id=appt.patient.telegram_chat_id)
+
+        # Уведомления через Eskiz SMS
+        if appt.patient.phone:
             from core.services.eskiz import eskiz_service
-            if eskiz_service.send_reminder_sms(appt):
+            if eskiz_service.send_reminder_sms(appt, reminder_minutes=reminder_minutes):
                 sent_count += 1
-            
+
     return f"Отправлено SMS напоминаний: {sent_count}"
 
 @shared_task
