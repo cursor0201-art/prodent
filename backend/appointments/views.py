@@ -4,6 +4,7 @@ logger = logging.getLogger(__name__)
 from rest_framework import viewsets, permissions, filters, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from django.db import models
 from django_filters.rest_framework import DjangoFilterBackend
 from django.db.models import Sum, Count, F, Q
 from django.utils import timezone
