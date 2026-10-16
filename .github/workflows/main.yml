@@ -62,7 +62,7 @@ jobs:
         DEBUG: "True"
         ALLOWED_HOSTS: "*"
       run: |
-        python manage.py test
+        python manage.py test appointments finance inventory patients users
 
   frontend-test:
     runs-on: ubuntu-latest
