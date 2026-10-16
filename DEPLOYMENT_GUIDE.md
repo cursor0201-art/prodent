@@ -19,11 +19,11 @@
    - `TELEGRAM_WEBHOOK_URL` = `https://<название-вашего-app>.koyeb.app/api/telegram/webhook/`
 7. Нажмите **Deploy**.
 
-*Koyeb автоматически найдет `Dockerfile`, соберет образ, загрузит зависимости и запустит Gunicorn. Также при старте Koyeb запустит миграции базы, так как `koyeb_build.sh` (или Dockerfile) это сделают.*
+*Koyeb автоматически найдет `Dockerfile` и запустит `run_services.py`: он последовательно поднимает Redis, выполняет миграции и запускает Celery worker, Celery beat и Gunicorn. Не переопределяйте команду запуска сервиса только на Gunicorn или `koyeb_build.sh`, иначе напоминания Celery не будут работать.*
 
 ## Шаг 2: Настройка базы данных и миграций
 Я создал для вас скрипт `koyeb_build.sh` внутри папки `/backend`.
-Если вы хотите, чтобы миграции запускались автоматически при каждом деплое, перейдите в настройки вашего сервиса на Koyeb (Settings), найдите поле **Run Command** или **Build Command** и укажите там: `bash koyeb_build.sh`.
+Миграции выполняются автоматически при старте контейнера. Оставьте штатную команду запуска из Dockerfile: именно она запускает worker и beat, необходимые для напоминаний.
 
 ## Шаг 3: Подготовка Frontend (Cloudflare Pages)
 1. Зайдите в [Cloudflare Dashboard](https://dash.cloudflare.com/) -> **Workers & Pages**.
