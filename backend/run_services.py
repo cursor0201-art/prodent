@@ -28,7 +28,9 @@ def main():
 
     processes = []
     try:
-        redis = subprocess.Popen(["redis-server", "--daemonize", "no"])
+        redis = subprocess.Popen(
+            ["redis-server", "--daemonize", "no", "--save", "", "--appendonly", "no"]
+        )
         processes.append(("redis", redis))
 
         deadline = time.monotonic() + 30
@@ -48,9 +50,19 @@ def main():
         subprocess.run([sys.executable, "manage.py", "seed_data"], check=True)
 
         services = [
-            ("celery-worker", ["celery", "-A", "core", "worker", "--loglevel=info", "--concurrency=1"]),
-            ("celery-beat", ["celery", "-A", "core", "beat", "--loglevel=info"]),
-            ("gunicorn", ["gunicorn", "core.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "2"]),
+            (
+                "celery-worker-and-beat",
+                [
+                    "celery", "-A", "core", "worker", "--beat",
+                    "--pool=solo", "--concurrency=1",
+                    "--without-gossip", "--without-mingle", "--without-heartbeat",
+                    "--loglevel=info",
+                ],
+            ),
+            (
+                "gunicorn",
+                ["gunicorn", "core.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "1"],
+            ),
         ]
         for name, command in services:
             process = subprocess.Popen(command)
